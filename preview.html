@@ -32,16 +32,22 @@
 
         /* A4 PAPER */
         #invoice { 
-            width: 210mm; min-height: 297mm; background: white; padding: 40px; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); box-sizing: border-box; 
-            position: relative; color: #000; line-height: 1.4; 
+            width: 210mm; 
+            /* We use min-height for viewing, but JS will adjust it for printing */
+            min-height: 297mm; 
+            background: white; 
+            padding: 40px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+            box-sizing: border-box; 
+            position: relative; 
+            color: #000; 
+            line-height: 1.4; 
         }
         
         /* INVOICE CONTENT */
         .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
         
-        /* Logo Styles (Text based to prevent PDF crash) */
-        .logo-box { font-size: 32px; font-weight: 900;  padding: 5px 15px; display: inline-block; letter-spacing: 2px; }
+        .logo-box { font-size: 32px; font-weight: 900; padding: 0px 15px; display: inline-block; letter-spacing: 2px; }
         
         .company { text-align: right; }
         .company h1 { margin: 0; font-size: 24px; color: #0062ff; text-transform: uppercase; font-weight: 800; }
@@ -51,6 +57,8 @@
         .to { width: 50%; }
         .meta { width: 40%; text-align: right; }
         
+        .hidden { display: none !important; }
+
         .tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
         .tbl th { background: #eef2ff; border: 1px solid #000; padding: 8px; text-align: center; font-weight: 700; }
         .tbl td { border: 1px solid #000; padding: 8px; }
@@ -77,9 +85,8 @@
     <div id="invoice">
         <div class="header">
             <div class="logo-box"><img src="Foram-logo.jpg" alt="" style="width: 100px;"></div> 
-            
             <div class="company">
-                <img src="Foram-infotech-Name.jpg" alt="" style="width: 200px;">
+               <img src="Foram-infotech-Name.jpg" alt="" style="width: 200px;">
             </div>
         </div>
 
@@ -93,7 +100,7 @@
             <div class="meta">
                 <div><strong>Quotation No:</strong> <span id="p_no"></span></div>
                 <div><strong>Issue Date:</strong> <span id="p_issue"></span></div>
-                <div><strong>Valid Until:</strong> <span id="p_valid"></span></div>
+                <div id="valid-row"><strong>Valid Until:</strong> <span id="p_valid"></span></div>
             </div>
         </div>
 
@@ -103,16 +110,23 @@
                     <th style="text-align: left;">Description</th>
                     <th>Qty</th>
                     <th>Unit Price</th>
+                    <th>Warranty / Guarantee</th>
                     <th>Subtotal</th>
-                    <th>Warranty</th>
                 </tr>
             </thead>
             <tbody id="p_table_body"></tbody>
             <tfoot>
+                <tr id="preview-subtotal-row" class="hidden">
+                    <td colspan="4" class="text-right"><strong>Subtotal</strong></td>
+                    <td class="text-right"><span id="p_subtotal"></span></td>
+                </tr>
+                <tr id="preview-gst-row" class="hidden">
+                    <td colspan="4" class="text-right"><strong>GST (18%)</strong></td>
+                    <td class="text-right"><span id="p_gst"></span></td>
+                </tr>
                 <tr>
-                    <td colspan="3" class="text-right"><strong>Total Amount</strong></td>
+                    <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
                     <td class="text-right"><strong id="p_grand"></strong></td>
-                    <td></td>
                 </tr>
                 <tr>
                     <td colspan="5" style="border:none; padding-top: 10px;">
@@ -154,22 +168,13 @@
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
 
-            if(!id) {
-                alert("No quotation ID found.");
-                window.location.href = 'index.html';
-                return;
-            }
+            if(!id) { alert("No ID."); window.location.href = 'index.html'; return; }
 
             const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
             const q = allQuotes.find(item => item.id == id);
 
-            if(!q) {
-                alert("Quotation not found.");
-                window.location.href = 'index.html';
-                return;
-            }
+            if(!q) { alert("Not found."); window.location.href = 'index.html'; return; }
 
-            // Fill Data
             document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
             document.getElementById('p_client').textContent = q.client;
             document.getElementById('p_addr1').textContent = q.addr1;
@@ -178,43 +183,76 @@
             
             const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-GB') : '';
             document.getElementById('p_issue').textContent = formatDate(q.issueDate);
-            document.getElementById('p_valid').textContent = formatDate(q.validDate);
+            
+            if (q.validDate) {
+                document.getElementById('p_valid').textContent = formatDate(q.validDate);
+                document.getElementById('valid-row').classList.remove('hidden');
+            } else {
+                document.getElementById('valid-row').classList.add('hidden');
+            }
 
             const tbody = document.getElementById('p_table_body');
+            let subtotal = 0;
+
             q.items.forEach(item => {
+                const itemTotal = parseFloat(item.total.replace(/,/g, ''));
+                subtotal += itemTotal;
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${item.desc}</td>
                     <td class="text-center">${item.qty}</td>
                     <td class="text-right">${parseFloat(item.price).toLocaleString('en-IN')}</td>
-                    <td class="text-right">${item.total}</td>
                     <td class="text-center">${item.warr}</td>
+                    <td class="text-right">${item.total}</td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            if (q.gstAdded) {
+                const gstVal = subtotal * 0.18;
+                document.getElementById('preview-subtotal-row').classList.remove('hidden');
+                document.getElementById('preview-gst-row').classList.remove('hidden');
+                document.getElementById('p_subtotal').textContent = subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('p_gst').textContent = gstVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            } else {
+                document.getElementById('preview-subtotal-row').classList.add('hidden');
+                document.getElementById('preview-gst-row').classList.add('hidden');
+            }
 
             document.getElementById('p_grand').textContent = q.grandTotal;
             document.getElementById('p_words').textContent = q.amountWords;
         });
 
         function downloadPDF() {
-            // 1. Scroll to top to ensure no cutting
             window.scrollTo(0, 0);
-
             const element = document.getElementById('invoice');
             const quoteNo = document.getElementById('p_no').textContent.replace(/[\/\\?%*:|"<>]/g, '-');
             
-            // 2. Simple Configuration (No cloning, reduces blank errors)
+            // --- FIX FOR EXTRA BLANK PAGE ---
+            // 1. Save original styles
+            const originalShadow = element.style.boxShadow;
+            const originalMinHeight = element.style.minHeight;
+            
+            // 2. Modify styles strictly for PDF generation
+            element.style.boxShadow = 'none'; // Shadow counts as size in some engines
+            element.style.margin = '0';
+            // Reducing height slightly ensures it fits on one A4 page
+            element.style.minHeight = '296mm'; 
+            
             const opt = {
                 margin: 0,
                 filename: `Quotation_${quoteNo}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, 
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // 3. Generate
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(element).save().then(() => {
+                // 3. Restore original styles after download
+                element.style.boxShadow = originalShadow;
+                element.style.minHeight = originalMinHeight;
+            });
         }
     </script>
 </body>
