@@ -11,7 +11,7 @@
     <style>
         :root { --primary: #0062ff; --bg: #f8fafc; --border: #e2e8f0; --text: #334155; }
         body { font-family: 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .app-container { max-width: 900px; margin: 0 auto; }
+        .app-container { max-width: 950px; margin: 0 auto; }
 
         .dashboard-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
         .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
@@ -26,14 +26,25 @@
 
         .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         .items-table th { background: #f1f5f9; text-align: left; padding: 12px; font-size: 0.8rem; font-weight: 700; color: #475569; }
-        .items-table td { padding: 8px; border-top: 1px solid var(--border); }
-        .items-table input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; }
-        .items-table input:hover, .items-table input:focus { background: white; border: 1px solid var(--primary); }
+        .items-table td { padding: 8px; border-top: 1px solid var(--border); vertical-align: top; }
+        
+        .items-table input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; font-family: inherit; font-size: 0.95rem; }
+        .items-table input:hover, .items-table input:focus { background: white; border: 1px solid var(--primary); border-radius: 4px; outline: none; }
+
+        /* Complex Warranty Input Group */
+        .warr-group { display: flex; gap: 5px; border: 1px solid transparent; border-radius: 4px; padding: 2px; }
+        .warr-group:hover { border-color: var(--primary); background: white; }
+        
+        .warr-group input { 
+            border: 1px solid #e2e8f0; width: 40px; text-align: center; border-radius: 4px; padding: 4px; background: white; 
+        }
+        .warr-group select { 
+            border: none; background: transparent; font-size: 0.8rem; color: #334155; cursor: pointer; outline: none; flex: 1;
+        }
 
         .grand-total-box { background: #eff6ff; padding: 20px; border-radius: 8px; text-align: right; margin-top: 20px; border: 1px solid #bfdbfe; }
         .grand-total-amount { font-size: 1.5rem; color: var(--primary); font-weight: 800; }
         
-        /* CHECKBOX STYLE */
         .gst-wrapper { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 600; color: #475569; cursor: pointer; }
         .gst-wrapper input { width: 18px; height: 18px; cursor: pointer; }
 
@@ -76,7 +87,15 @@
 
                 <div class="section-title">Items</div>
                 <table class="items-table" id="itemsTable">
-                    <thead><tr><th width="45%">Description</th><th width="10%">Qty</th><th width="15%">Unit Price</th><th width="20%">Warranty</th><th width="10%">Total</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th width="35%">Description</th>
+                            <th width="8%">Qty</th>
+                            <th width="15%">Unit Price</th>
+                            <th width="32%">Warranty / Guarantee</th>
+                            <th width="10%">Total</th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
 
@@ -122,10 +141,7 @@
                     document.getElementById('in_no').value = q.quoteNo;
                     document.getElementById('in_date_issue').value = q.issueDate;
                     document.getElementById('in_date_valid').value = q.validDate;
-                    
-                    // Restore Checkbox State
                     document.getElementById('gstCheck').checked = q.gstAdded || false;
-
                     q.items.forEach(item => createRow(item));
                 }
             } else {
@@ -138,13 +154,38 @@
         const tableBody = document.querySelector('#itemsTable tbody');
 
         function createRow(data = {}) {
+            // PARSE SAVED STRING: e.g. "1 Year Warranty" -> duration="1", unit="Year", type="Warranty"
+            let duration = "";
+            let unit = "Year";
+            let type = "Warranty";
+
+            if (data.warr) {
+                const parts = data.warr.split(' ');
+                // Basic heuristic parsing
+                if(parts.length >= 1) duration = parts[0]; 
+                if(parts.length >= 2) unit = parts[1]; // Year/Month
+                if(parts.length >= 3) type = parts[2]; // Warranty/Guarantee
+            }
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><input type="text" class="i-desc" placeholder="Item Name" value="${data.desc || ''}"></td>
                 <td><input type="number" class="i-qty" value="${data.qty || 1}" style="text-align:center;"></td>
                 <td><input type="number" class="i-price" placeholder="0.00" value="${data.price || ''}" style="text-align:right;"></td>
-                <td><input type="text" class="i-warr" placeholder="e.g. 1 Year" value="${data.warr || ''}"></td>
-                <td style="text-align:right; padding-right:12px; font-weight:bold;" class="i-total">0.00</td>
+                <td>
+                    <div class="warr-group">
+                        <input type="text" class="i-warr-duration" placeholder="1" value="${duration}">
+                        <select class="i-warr-unit">
+                            <option value="Year" ${unit === 'Year' ? 'selected' : ''}>Year(s)</option>
+                            <option value="Month" ${unit === 'Month' ? 'selected' : ''}>Month(s)</option>
+                        </select>
+                        <select class="i-warr-type">
+                            <option value="Warranty" ${type === 'Warranty' ? 'selected' : ''}>Warranty</option>
+                            <option value="Guarantee" ${type === 'Guarantee' ? 'selected' : ''}>Guarantee</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="text-align:right; padding-right:12px; font-weight:bold; padding-top: 12px;" class="i-total">0.00</td>
             `;
             tableBody.appendChild(tr);
             calculateTotals();
@@ -152,8 +193,6 @@
 
         function calculateTotals() {
             let subtotal = 0;
-            
-            // 1. Calculate Subtotal from rows
             document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
                 const q = parseFloat(row.querySelector('.i-qty').value) || 0;
                 const p = parseFloat(row.querySelector('.i-price').value) || 0;
@@ -162,22 +201,18 @@
                 subtotal += t;
             });
 
-            // 2. Check GST
             const isGst = document.getElementById('gstCheck').checked;
             let grandTotal = subtotal;
 
             if (isGst) {
                 const gstAmount = subtotal * 0.18;
                 grandTotal = subtotal + gstAmount;
-                
-                // Show subtotal detail if GST is on
                 document.getElementById('subtotalRow').hidden = false;
                 document.getElementById('displaySubtotal').textContent = subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
             } else {
                 document.getElementById('subtotalRow').hidden = true;
             }
 
-            // 3. Update Display
             document.getElementById('displayTotal').textContent = grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
             document.getElementById('displayWords').textContent = numberToWords(Math.round(grandTotal));
         }
@@ -196,11 +231,18 @@
             document.querySelectorAll('tbody tr').forEach(row => {
                 const desc = row.querySelector('.i-desc').value;
                 if(desc.trim()) {
+                    // Combine inputs into one string for saving
+                    const dur = row.querySelector('.i-warr-duration').value.trim();
+                    const unit = row.querySelector('.i-warr-unit').value;
+                    const type = row.querySelector('.i-warr-type').value;
+                    
+                    const warrString = dur ? `${dur} ${unit} ${type}` : ''; // e.g., "1 Year Warranty"
+
                     items.push({
                         desc: desc,
                         qty: row.querySelector('.i-qty').value,
                         price: row.querySelector('.i-price').value,
-                        warr: row.querySelector('.i-warr').value,
+                        warr: warrString, 
                         total: row.querySelector('.i-total').textContent
                     });
                 }
@@ -216,7 +258,7 @@
                 validDate: document.getElementById('in_date_valid').value,
                 grandTotal: document.getElementById('displayTotal').textContent,
                 amountWords: document.getElementById('displayWords').textContent,
-                gstAdded: document.getElementById('gstCheck').checked, // Save checkbox state
+                gstAdded: document.getElementById('gstCheck').checked,
                 items: items
             };
 
@@ -228,8 +270,6 @@
             }
             
             localStorage.setItem('myQuotations', JSON.stringify(allQuotes));
-            
-            // Redirect to Preview
             window.location.href = `preview.html?id=${formData.id}`;
         }
 
