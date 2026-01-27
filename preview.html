@@ -33,7 +33,6 @@
         /* A4 PAPER */
         #invoice { 
             width: 210mm; 
-            /* We use min-height for viewing, but JS will adjust it for printing */
             min-height: 297mm; 
             background: white; 
             padding: 40px; 
@@ -47,7 +46,8 @@
         /* INVOICE CONTENT */
         .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
         
-        .logo-box { font-size: 32px; font-weight: 900; padding: 0px 15px; display: inline-block; letter-spacing: 2px; }
+        /* Logo */
+        .logo-box { font-size: 32px; font-weight: 900; border: 4px solid #000; padding: 5px 15px; display: inline-block; letter-spacing: 2px; }
         
         .company { text-align: right; }
         .company h1 { margin: 0; font-size: 24px; color: #0062ff; text-transform: uppercase; font-weight: 800; }
@@ -57,6 +57,7 @@
         .to { width: 50%; }
         .meta { width: 40%; text-align: right; }
         
+        /* Helper class to hide rows */
         .hidden { display: none !important; }
 
         .tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
@@ -84,9 +85,10 @@
 
     <div id="invoice">
         <div class="header">
-            <div class="logo-box"><img src="Foram-logo.jpg" alt="" style="width: 100px;"></div> 
+            <div class="logo-box">FI</div> 
             <div class="company">
-               <img src="Foram-infotech-Name.jpg" alt="" style="width: 200px;">
+                <h1>FORAM INFOTECH</h1>
+                <h3>QUOTATION</h3>
             </div>
         </div>
 
@@ -175,6 +177,7 @@
 
             if(!q) { alert("Not found."); window.location.href = 'index.html'; return; }
 
+            // Fill Data
             document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
             document.getElementById('p_client').textContent = q.client;
             document.getElementById('p_addr1').textContent = q.addr1;
@@ -225,33 +228,65 @@
         });
 
         function downloadPDF() {
+            // 1. Prepare UI: Scroll top
             window.scrollTo(0, 0);
             const element = document.getElementById('invoice');
             const quoteNo = document.getElementById('p_no').textContent.replace(/[\/\\?%*:|"<>]/g, '-');
-            
-            // --- FIX FOR EXTRA BLANK PAGE ---
-            // 1. Save original styles
+            const finalFileName = `Quotation_${quoteNo}.pdf`;
+
+            // 2. Prepare Style Fixes (Anti-Cut & Anti-Blank)
             const originalShadow = element.style.boxShadow;
+            const originalMargin = element.style.margin;
             const originalMinHeight = element.style.minHeight;
             
-            // 2. Modify styles strictly for PDF generation
-            element.style.boxShadow = 'none'; // Shadow counts as size in some engines
+            element.style.boxShadow = 'none';
             element.style.margin = '0';
-            // Reducing height slightly ensures it fits on one A4 page
-            element.style.minHeight = '296mm'; 
-            
+            element.style.minHeight = '296mm';
+
+            // 3. Configuration
             const opt = {
                 margin: 0,
-                filename: `Quotation_${quoteNo}.pdf`,
+                filename: finalFileName,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                // 3. Restore original styles after download
+            // 4. Generate PDF Blob
+            html2pdf().set(opt).from(element).output('blob').then(async (blob) => {
+                
+                // 5. Restore Styles immediately
                 element.style.boxShadow = originalShadow;
+                element.style.margin = originalMargin;
                 element.style.minHeight = originalMinHeight;
+
+                // 6. SMART SAVE: Check if browser supports "Save As" (Desktop)
+                try {
+                    if (window.showSaveFilePicker) {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: finalFileName,
+                            types: [{
+                                description: 'PDF Document',
+                                accept: {'application/pdf': ['.pdf']},
+                            }],
+                        });
+                        const writable = await handle.createWritable();
+                        await writable.write(blob);
+                        await writable.close();
+                    } else {
+                        throw new Error("Fallback");
+                    }
+                } catch (err) {
+                    // 7. FALLBACK: Mobile / Older Browsers (Direct Download)
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = finalFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
             });
         }
     </script>
