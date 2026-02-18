@@ -21,8 +21,24 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
-        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,255,0.1); }
+        
+        /* Unified Input & Select Styling */
+        .form-group input, .form-select-custom { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+            font-size: 0.95rem;
+            background-color: white;
+            color: var(--text);
+        }
+        .form-group input:focus, .form-select-custom:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(0,98,255,0.1); 
+        }
 
         .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         .items-table th { background: #f1f5f9; text-align: left; padding: 12px; font-size: 0.8rem; font-weight: 700; color: #475569; }
@@ -31,16 +47,10 @@
         .items-table input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; font-family: inherit; font-size: 0.95rem; }
         .items-table input:hover, .items-table input:focus { background: white; border: 1px solid var(--primary); border-radius: 4px; outline: none; }
 
-        /* Complex Warranty Input Group */
         .warr-group { display: flex; gap: 5px; border: 1px solid transparent; border-radius: 4px; padding: 2px; }
         .warr-group:hover { border-color: var(--primary); background: white; }
-        
-        .warr-group input { 
-            border: 1px solid #e2e8f0; width: 40px; text-align: center; border-radius: 4px; padding: 4px; background: white; 
-        }
-        .warr-group select { 
-            border: none; background: transparent; font-size: 0.8rem; color: #334155; cursor: pointer; outline: none; flex: 1;
-        }
+        .warr-group input { border: 1px solid #e2e8f0; width: 40px; text-align: center; border-radius: 4px; padding: 4px; background: white; }
+        .warr-group select { border: none; background: transparent; font-size: 0.8rem; color: #334155; cursor: pointer; outline: none; flex: 1; }
 
         .grand-total-box { background: #eff6ff; padding: 20px; border-radius: 8px; text-align: right; margin-top: 20px; border: 1px solid #bfdbfe; }
         .grand-total-amount { font-size: 1.5rem; color: var(--primary); font-weight: 800; }
@@ -77,6 +87,14 @@
                     </div>
                     <div>
                         <div class="section-title">Info</div>
+                        <div class="form-group">
+                            <label>Issuing Company</label>
+                            <select id="in_company" class="form-select-custom">
+                                <option value="Foram Infotech" selected>Foram Infotech</option>
+                                <option value="ABC Corp">ABC Corp</option>
+                                <option value="XYZ Solutions">XYZ Solutions</option>
+                            </select>
+                        </div>
                         <div class="form-group"><label>Quotation No</label><input type="text" id="in_no"></div>
                         <div class="grid-2" style="gap:10px;">
                             <div class="form-group"><label>Issue Date</label><input type="date" id="in_date_issue"></div>
@@ -135,6 +153,7 @@
                 const q = allQuotes.find(item => item.id == editId);
                 if(q) {
                     document.getElementById('edit-id').value = q.id;
+                    document.getElementById('in_company').value = q.company || "Foram Infotech";
                     document.getElementById('in_client').value = q.client;
                     document.getElementById('in_addr1').value = q.addr1;
                     document.getElementById('in_addr2').value = q.addr2;
@@ -142,29 +161,32 @@
                     document.getElementById('in_date_issue').value = q.issueDate;
                     document.getElementById('in_date_valid').value = q.validDate;
                     document.getElementById('gstCheck').checked = q.gstAdded || false;
-                    q.items.forEach(item => createRow(item));
+                    
+                    if(q.items && q.items.length > 0) {
+                        q.items.forEach(item => createRow(item));
+                    } else {
+                        createRow();
+                    }
                 }
             } else {
                 document.getElementById('in_no').value = '2526/' + (Math.floor(Math.random() * 1000) + 100);
+                createRow(); 
             }
-            createRow(); 
             calculateTotals();
         });
 
         const tableBody = document.querySelector('#itemsTable tbody');
 
         function createRow(data = {}) {
-            // PARSE SAVED STRING: e.g. "1 Year Warranty" -> duration="1", unit="Year", type="Warranty"
             let duration = "";
             let unit = "Year";
             let type = "Warranty";
 
             if (data.warr) {
                 const parts = data.warr.split(' ');
-                // Basic heuristic parsing
                 if(parts.length >= 1) duration = parts[0]; 
-                if(parts.length >= 2) unit = parts[1]; // Year/Month
-                if(parts.length >= 3) type = parts[2]; // Warranty/Guarantee
+                if(parts.length >= 2) unit = parts[1]; 
+                if(parts.length >= 3) type = parts[2]; 
             }
 
             const tr = document.createElement('tr');
@@ -231,12 +253,10 @@
             document.querySelectorAll('tbody tr').forEach(row => {
                 const desc = row.querySelector('.i-desc').value;
                 if(desc.trim()) {
-                    // Combine inputs into one string for saving
                     const dur = row.querySelector('.i-warr-duration').value.trim();
                     const unit = row.querySelector('.i-warr-unit').value;
                     const type = row.querySelector('.i-warr-type').value;
-                    
-                    const warrString = dur ? `${dur} ${unit} ${type}` : ''; // e.g., "1 Year Warranty"
+                    const warrString = dur ? `${dur} ${unit} ${type}` : '';
 
                     items.push({
                         desc: desc,
@@ -250,6 +270,7 @@
 
             const formData = {
                 id: editId ? parseInt(editId) : Date.now(),
+                company: document.getElementById('in_company').value,
                 client: document.getElementById('in_client').value,
                 addr1: document.getElementById('in_addr1').value,
                 addr2: document.getElementById('in_addr2').value,
@@ -264,7 +285,7 @@
 
             if(editId) {
                 const index = allQuotes.findIndex(q => q.id == editId);
-                allQuotes[index] = formData;
+                if(index !== -1) allQuotes[index] = formData;
             } else {
                 allQuotes.push(formData);
             }
