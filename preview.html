@@ -11,165 +11,250 @@
 
     <style>
         body { background: #525659; font-family: 'Noto Sans', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .controls { position: sticky; top: 20px; z-index: 100; background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; gap: 15px; margin-bottom: 20px; }
-        .btn { padding: 8px 20px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none; color: #333; font-size: 0.9rem; }
+        
+        /* CONTROLS */
+        .controls { 
+            position: sticky; top: 20px; z-index: 100; 
+            background: white; padding: 10px 20px; border-radius: 50px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+            display: flex; gap: 15px; margin-bottom: 20px; 
+        }
+        
+        .btn { 
+            padding: 8px 20px; border-radius: 20px; border: none; 
+            font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; 
+            text-decoration: none; color: #333; font-size: 0.9rem;
+        }
+        .btn:hover { transform: scale(1.02); }
+        .btn-edit { background: #f1f5f9; border: 1px solid #ccc; }
         .btn-download { background: #10b981; color: white; }
         .btn-back { background: #0062ff; color: white; }
 
-        #invoice { width: 210mm; min-height: 297mm; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.5); box-sizing: border-box; position: relative; color: #000; overflow: hidden; }
+        /* A4 PAPER */
+        #invoice { 
+            width: 210mm; 
+            min-height: 297mm; 
+            background: white; 
+            padding: 40px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+            box-sizing: border-box; 
+            position: relative; 
+            color: #000; 
+            line-height: 1.4; 
+        }
+        
+        /* INVOICE CONTENT */
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        /* Logo */
+        .logo-box { font-size: 32px; font-weight: 900;  padding: 0px 15px; display: inline-block; letter-spacing: 2px; }
+        
+        .company { text-align: right; }
+        .company h1 { margin: 0; font-size: 24px; color: #0062ff; text-transform: uppercase; font-weight: 800; }
+        .company h3 { margin: 0; font-size: 14px; letter-spacing: 2px; font-weight: 700; color: #555; }
+        
+        .grid { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 12px; }
+        .to { width: 50%; }
+        .meta { width: 40%; text-align: right; }
+        
+        /* Helper class to hide rows */
+        .hidden { display: none !important; }
 
-        /* --- THEME 1: FORAM (Classic) --- */
-        .theme-foram { padding: 40px; }
-        .theme-foram .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0062ff; padding-bottom: 10px; margin-bottom: 20px; }
-        .theme-foram .bottom-bar { position: absolute; bottom: 30px; left: 40px; right: 40px; border-top: 2px solid #0062ff; padding-top: 10px; text-align: center; font-size: 10px; }
-
-        /* --- THEME 2: ABC (Modern Sidebar) --- */
-        .theme-abc { padding: 0; display: flex; flex-direction: column; }
-        .theme-abc .top-stripe { height: 15px; background: #dc2626; width: 100%; }
-        .theme-abc .content-padding { padding: 40px; }
-        .theme-abc .header { display: flex; background: #f8fafc; padding: 30px 40px; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
-        .theme-abc .tbl th { background: #334155; color: white; border: none; }
-
-        /* --- THEME 3: XYZ (Corporate Bold) --- */
-        .theme-xyz { padding: 0; }
-        .theme-xyz .corp-header { background: #0d9488; color: white; padding: 50px 40px; display: flex; justify-content: space-between; }
-        .theme-xyz .corp-header h1 { color: white !important; margin: 0; font-size: 35px; }
-        .theme-xyz .content-padding { padding: 40px; }
-        .theme-xyz .tbl th { background: #f0fdfa; color: #0d9488; border: 1px solid #0d9488; }
-
-        /* Shared Table Styles */
-        .tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; }
-        .tbl th, .tbl td { border: 1px solid #ddd; padding: 10px; }
+        .tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+        .tbl th { background: #eef2ff; border: 1px solid #000; padding: 8px; text-align: center; font-weight: 700; }
+        .tbl td { border: 1px solid #000; padding: 8px; }
+        
         .text-right { text-align: right; }
         .text-center { text-align: center; }
-        .hidden { display: none !important; }
-        .footer-flex { display: flex; justify-content: space-between; margin-top: 30px; }
+        
+        .footer { display: flex; justify-content: space-between; margin-top: 20px; font-size: 11px; }
+        .bank { border: 1px solid #000; padding: 10px; width: 55%; }
+        .sign { width: 40%; text-align: right; display: flex; flex-direction: column; justify-content: space-between; }
+        .sign-line { border-top: 1px solid #000; width: 100%; margin-top: 50px; display: inline-block; padding-top: 5px; }
+        
+        .bottom { position: absolute; bottom: 30px; left: 40px; right: 40px; border-top: 2px solid #0062ff; padding-top: 10px; text-align: center; font-size: 10px; color: #444; }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <a href="#" id="btn-edit" class="btn"><span class="material-icons">edit</span> Edit</a>
+        <a href="#" id="btn-edit" class="btn btn-edit"><span class="material-icons">edit</span> Edit</a>
         <button class="btn btn-download" onclick="downloadPDF()"><span class="material-icons">download</span> Download PDF</button>
-        <a href="index.html" class="btn btn-back"><span class="material-icons">arrow_back</span> Back</a>
+        <a href="index.html" class="btn btn-back"><span class="material-icons">arrow_back</span> Back to List</a>
     </div>
 
     <div id="invoice">
-        <div id="dynamic-container">
+        <div class="header">
+            <div class="logo-box"><img src="Foram-logo.jpg" alt="" style="width: 100px;"></div> 
+            <div class="company">
+                <img src="Foram-infotech-Name.jpg" alt="" style="width: 200px;">
             </div>
+        </div>
+
+        <div class="grid">
+            <div class="to">
+                <strong>To,</strong><br>
+                <span id="p_client" style="font-size:14px; font-weight:bold;"></span><br>
+                <span id="p_addr1"></span><br>
+                <span id="p_addr2"></span>
+            </div>
+            <div class="meta">
+                <div><strong>Quotation No:</strong> <span id="p_no"></span></div>
+                <div><strong>Issue Date:</strong> <span id="p_issue"></span></div>
+                <div id="valid-row"><strong>Valid Until:</strong> <span id="p_valid"></span></div>
+            </div>
+        </div>
+
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Warranty / Guarantee</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody id="p_table_body"></tbody>
+            <tfoot>
+                <tr id="preview-subtotal-row" class="hidden">
+                    <td colspan="4" class="text-right"><strong>Subtotal</strong></td>
+                    <td class="text-right"><span id="p_subtotal"></span></td>
+                </tr>
+                <tr id="preview-gst-row" class="hidden">
+                    <td colspan="4" class="text-right"><strong>GST (18%)</strong></td>
+                    <td class="text-right"><span id="p_gst"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
+                    <td class="text-right"><strong id="p_grand"></strong></td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="border:none; padding-top: 10px;">
+                        <strong>In Words:</strong> <span id="p_words" style="font-style: italic;"></span>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="footer">
+            <div class="bank">
+                <strong style="text-decoration:underline;">Bank Details</strong><br>
+                <strong>Bank Name:</strong> HDFC Bank<br>
+                <strong>Account No:</strong> 50200113927631<br>
+                <strong>IFSC Code:</strong> HDFC0009655<br>
+                <strong>Branch:</strong> VADAJ, AHMEDABAD
+                <div style="margin-top:10px; font-size:10px;">
+                    <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.<br>
+                    1. Goods once sold will not be accepted back.<br>
+                    2. Payment by cheque/draft in favour of "Foram Infotech".<br>
+                    3. Subject to Ahmedabad jurisdiction only.
+                </div>
+            </div>
+            <div class="sign">
+                <div>for, <strong>FORAM INFOTECH</strong></div>
+                <div class="sign-line">Authorised Signatory</div>
+            </div>
+        </div>
+
+        <div class="bottom">
+            <strong>New Laptop, Desktop Sales & Service, Software Install, Data Recovery & AMC</strong><br>
+            Shop No. 137, First Floor, Ratnadeep Flora, Nr. SV Square, New Ranip, Ahmedabad - 382470<br>
+            M: 88666 23434, 70436 20212
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id');
-            const q = (JSON.parse(localStorage.getItem('myQuotations')) || []).find(item => item.id == id);
-            if(!q) return;
 
+            if(!id) { alert("No ID found in URL."); return; }
+
+            const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
+            const q = allQuotes.find(item => item.id == id);
+
+            if(!q) { alert("Quotation not found."); return; }
+
+            // Set Edit link
             document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
-            const container = document.getElementById('dynamic-container');
-            const invoice = document.getElementById('invoice');
 
-            let htmlContent = '';
+            // Populate Client Info
+            document.getElementById('p_client').textContent = q.client || '';
+            document.getElementById('p_addr1').textContent = q.addr1 || '';
+            document.getElementById('p_addr2').textContent = q.addr2 || '';
+            document.getElementById('p_no').textContent = q.quoteNo || '';
+            
+            const formatDate = (d) => {
+                if(!d) return '';
+                const date = new Date(d);
+                return date.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            };
 
-            if (q.company === "ABC Corp") {
-                invoice.className = "theme-abc";
-                htmlContent = `
-                    <div class="top-stripe"></div>
-                    <div class="header">
-                        <div><h1 style="margin:0; color:#dc2626;">ABC CORP</h1><p>Innovation at Work</p></div>
-                        <div class="text-right"><strong>QUOTATION</strong><br># ${q.quoteNo}</div>
-                    </div>
-                    <div class="content-padding">
-                        <div class="footer-flex">
-                            <div><strong>BILL TO:</strong><br>${q.client}<br>${q.addr1}<br>${q.addr2}</div>
-                            <div class="text-right"><strong>DATE:</strong> ${q.issueDate}<br><strong>VALID:</strong> ${q.validDate}</div>
-                        </div>
-                        ${generateTable(q)}
-                        <div class="footer-flex">
-                            <div style="font-size:11px;"><strong>BANK:</strong> ICICI Bank | <strong>A/C:</strong> 123456789</div>
-                            <div class="text-right" style="width:200px;"><br><br><div style="border-top:1px solid #000; padding-top:5px;">Authorized Signatory</div></div>
-                        </div>
-                    </div>
-                `;
-            } 
-            else if (q.company === "XYZ Solutions") {
-                invoice.className = "theme-xyz";
-                htmlContent = `
-                    <div class="corp-header">
-                        <div><h1>XYZ</h1><p>SOLUTIONS LTD</p></div>
-                        <div class="text-right">QUOTATION NO<br><span style="font-size:20px;">${q.quoteNo}</span></div>
-                    </div>
-                    <div class="content-padding">
-                        <div class="footer-flex" style="margin-bottom:40px;">
-                            <div style="border-left:5px solid #0d9488; padding-left:15px;">
-                                <strong>CLIENT DETAILS</strong><br>${q.client}<br>${q.addr1}
-                            </div>
-                            <div class="text-right">Date: ${q.issueDate}</div>
-                        </div>
-                        ${generateTable(q)}
-                        <div class="footer-flex">
-                            <div style="background:#f8fafc; padding:15px; width:60%;">
-                                <strong>Bank Transfer Details</strong><br>Axis Bank | IFSC: UTIB0001 | A/C: 998877
-                            </div>
-                            <div class="text-right">For XYZ Solutions<br><br><br><strong>Manager Sig.</strong></div>
-                        </div>
-                    </div>
-                `;
-            } 
-            else {
-                invoice.className = "theme-foram";
-                htmlContent = `
-                    <div class="header">
-                        <div><img src="Foram-logo.jpg" style="width:100px;"></div>
-                        <div class="text-right"><h1 style="color:#0062ff; margin:0;">FORAM INFOTECH</h1><p>Sales & Service</p></div>
-                    </div>
-                    <div>
-                        <strong>To,</strong><br>${q.client}<br>${q.addr1}<br>${q.addr2}
-                        <div class="text-right" style="margin-top:-40px;">
-                            Quote: ${q.quoteNo}<br>Date: ${q.issueDate}
-                        </div>
-                    </div>
-                    ${generateTable(q)}
-                    <div class="footer-flex">
-                        <div style="border:1px solid #000; padding:10px; width:50%; font-size:11px;">
-                            <strong>Bank Details:</strong> HDFC Bank | A/C: 50200113927631
-                        </div>
-                        <div class="text-right">for Foram Infotech<br><br><br>Auth. Signatory</div>
-                    </div>
-                    <div class="bottom-bar">Shop 137, Ratnadeep Flora, New Ranip, Ahmedabad | 88666 23434</div>
-                `;
+            document.getElementById('p_issue').textContent = formatDate(q.issueDate);
+            
+            if (q.validDate) {
+                document.getElementById('p_valid').textContent = formatDate(q.validDate);
+                document.getElementById('valid-row').classList.remove('hidden');
+            } else {
+                document.getElementById('valid-row').classList.add('hidden');
             }
 
-            container.innerHTML = htmlContent;
-        });
+            // Populate Items Table
+            const tbody = document.getElementById('p_table_body');
+            let runningSubtotal = 0;
 
-        function generateTable(q) {
-            let rows = q.items.map(item => `
-                <tr>
+            q.items.forEach(item => {
+                const tr = document.createElement('tr');
+                const price = parseFloat(item.price) || 0;
+                const qty = parseFloat(item.qty) || 0;
+                const total = price * qty;
+                runningSubtotal += total;
+
+                tr.innerHTML = `
                     <td>${item.desc}</td>
                     <td class="text-center">${item.qty}</td>
-                    <td class="text-right">${item.price}</td>
-                    <td class="text-center">${item.warr}</td>
-                    <td class="text-right">${item.total}</td>
-                </tr>
-            `).join('');
+                    <td class="text-right">${price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td class="text-center">${item.warr || '-'}</td>
+                    <td class="text-right">${total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-            return `
-                <table class="tbl">
-                    <thead><tr><th>Description</th><th>Qty</th><th>Price</th><th>Warranty</th><th>Total</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                    <tfoot>
-                        <tr><td colspan="4" class="text-right"><strong>Grand Total</strong></td><td class="text-right"><strong>${q.grandTotal}</strong></td></tr>
-                    </tfoot>
-                </table>
-                <p style="font-size:11px; margin-top:10px;"><strong>Words:</strong> ${q.amountWords}</p>
-            `;
-        }
+            // Handle Totals and GST
+            if (q.gstAdded) {
+                const gstVal = runningSubtotal * 0.18;
+                document.getElementById('preview-subtotal-row').classList.remove('hidden');
+                document.getElementById('preview-gst-row').classList.remove('hidden');
+                document.getElementById('p_subtotal').textContent = runningSubtotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('p_gst').textContent = gstVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            }
+
+            document.getElementById('p_grand').textContent = "₹ " + (q.grandTotal || "0.00");
+            document.getElementById('p_words').textContent = q.amountWords || '';
+        });
 
         function downloadPDF() {
+            window.scrollTo(0, 0);
             const element = document.getElementById('invoice');
-            html2pdf().set({ margin: 0, filename: 'Quotation.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' }}).from(element).save();
+            const quoteNo = document.getElementById('p_no').textContent.replace(/[\/\\?%*:|"<>]/g, '-') || 'Download';
+            const finalFileName = `Quotation_${quoteNo}.pdf`;
+
+            // Prepare styles for PDF capture
+            const originalShadow = element.style.boxShadow;
+            element.style.boxShadow = 'none';
+
+            const opt = {
+                margin: 0,
+                filename: finalFileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                element.style.boxShadow = originalShadow; // Restore shadow
+            }).save();
         }
     </script>
 </body>
