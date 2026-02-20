@@ -21,24 +21,8 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
-        
-        /* Unified Input & Select Styling */
-        .form-group input, .form-select-custom { 
-            width: 100%; 
-            padding: 10px; 
-            border: 1px solid var(--border); 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            font-family: inherit;
-            font-size: 0.95rem;
-            background-color: white;
-            color: var(--text);
-        }
-        .form-group input:focus, .form-select-custom:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 3px rgba(0,98,255,0.1); 
-        }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,255,0.1); }
 
         .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         .items-table th { background: #f1f5f9; text-align: left; padding: 12px; font-size: 0.8rem; font-weight: 700; color: #475569; }
@@ -49,7 +33,7 @@
 
         .warr-group { display: flex; gap: 5px; border: 1px solid transparent; border-radius: 4px; padding: 2px; }
         .warr-group:hover { border-color: var(--primary); background: white; }
-        .warr-group input { border: 1px solid #e2e8f0; width: 40px; text-align: center; border-radius: 4px; padding: 4px; background: white; }
+        .warr-group input { border: 1px solid #e2e8f0; width: 45px; text-align: center; border-radius: 4px; padding: 4px; background: white; }
         .warr-group select { border: none; background: transparent; font-size: 0.8rem; color: #334155; cursor: pointer; outline: none; flex: 1; }
 
         .grand-total-box { background: #eff6ff; padding: 20px; border-radius: 8px; text-align: right; margin-top: 20px; border: 1px solid #bfdbfe; }
@@ -89,7 +73,7 @@
                         <div class="section-title">Info</div>
                         <div class="form-group">
                             <label>Issuing Company</label>
-                            <select id="in_company" class="form-select-custom">
+                            <select id="in_company">
                                 <option value="Foram Infotech" selected>Foram Infotech</option>
                                 <option value="ABC Corp">ABC Corp</option>
                                 <option value="XYZ Solutions">XYZ Solutions</option>
@@ -145,6 +129,7 @@
         let allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get('id');
+        const tableBody = document.querySelector('#itemsTable tbody');
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('in_date_issue').valueAsDate = new Date();
@@ -164,18 +149,16 @@
                     
                     if(q.items && q.items.length > 0) {
                         q.items.forEach(item => createRow(item));
-                    } else {
-                        createRow();
                     }
                 }
             } else {
                 document.getElementById('in_no').value = '2526/' + (Math.floor(Math.random() * 1000) + 100);
-                createRow(); 
             }
+            
+            // Ensure at least one empty row exists
+            if (tableBody.children.length === 0) createRow();
             calculateTotals();
         });
-
-        const tableBody = document.querySelector('#itemsTable tbody');
 
         function createRow(data = {}) {
             let duration = "";
@@ -184,9 +167,9 @@
 
             if (data.warr) {
                 const parts = data.warr.split(' ');
-                if(parts.length >= 1) duration = parts[0]; 
-                if(parts.length >= 2) unit = parts[1]; 
-                if(parts.length >= 3) type = parts[2]; 
+                duration = parts[0] || "";
+                unit = parts[1] || "Year";
+                type = parts[2] || "Warranty";
             }
 
             const tr = document.createElement('tr');
@@ -243,14 +226,13 @@
             if(e.target.classList.contains('i-desc')) {
                 const row = e.target.closest('tr');
                 if(row === tableBody.lastElementChild && e.target.value.trim() !== '') createRow();
-                if(row !== tableBody.lastElementChild && e.target.value.trim() === '') { row.remove(); calculateTotals(); }
             }
             if(e.target.classList.contains('i-qty') || e.target.classList.contains('i-price')) calculateTotals();
         });
 
         function saveAndPreview() {
             const items = [];
-            document.querySelectorAll('tbody tr').forEach(row => {
+            document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
                 const desc = row.querySelector('.i-desc').value;
                 if(desc.trim()) {
                     const dur = row.querySelector('.i-warr-duration').value.trim();
@@ -285,7 +267,7 @@
 
             if(editId) {
                 const index = allQuotes.findIndex(q => q.id == editId);
-                if(index !== -1) allQuotes[index] = formData;
+                allQuotes[index] = formData;
             } else {
                 allQuotes.push(formData);
             }
