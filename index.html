@@ -31,6 +31,12 @@
 
         .btn-primary { background: var(--primary); color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
         .btn-primary:hover { background: #004ecb; }
+        
+        /* Style for the second button */
+        .btn-secondary { background: #6366f1; }
+        .btn-secondary:hover { background: #4f46e5; }
+        
+        .header-actions { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
@@ -41,7 +47,14 @@
                 <h2 style="margin:0; color:#334155;">Quotations</h2>
                 <span style="font-size:0.9rem; color:#64748b;">Manage your saved quotations</span>
             </div>
-            <a href="quotation.html" class="btn-primary"><span class="material-icons">add</span> Create New</a>
+            <div class="header-actions">
+                <a href="quotation.html" class="btn-primary">
+                    <span class="material-icons">add</span> Foram Infotech
+                </a>
+                <a href="other-quotation.html" class="btn-primary btn-secondary">
+                    <span class="material-icons">business</span> Other Company
+                </a>
+            </div>
         </div>
 
         <div class="dashboard-card">
@@ -74,7 +87,6 @@
             }
             empty.style.display = 'none';
 
-            // Sort by newest first
             const sorted = [...allQuotes].sort((a,b) => b.id - a.id);
 
             sorted.forEach(q => {
