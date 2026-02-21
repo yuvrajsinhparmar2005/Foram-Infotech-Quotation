@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quotation Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Playfair+Display:ital,wght@0,700;1,700&family=Roboto+Mono:wght@400;700&family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #f1f5f9; margin: 0; padding: 40px 0; color: #1e293b; }
+        .page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; box-sizing: border-box; display: flex; flex-direction: column; }
+        .no-print { width: 210mm; margin: 0 auto 20px auto; display: flex; gap: 10px; }
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 700; text-decoration: none; font-size: 14px; background: #1e293b; color: #fff; }
+
+        /* --- THEMES --- */
+        .theme-sahil { font-family: 'Inter', sans-serif; --p: #0062ff; }
+        .theme-sahil .header { border-left: 10px solid var(--p); padding-left: 20px; display: flex; justify-content: space-between; }
+
+        .theme-parmar { font-family: 'Outfit', sans-serif; --p: #10b981; }
+        .theme-parmar .header { text-align: center; background: #f0fdf4; padding: 30px; border-radius: 15px; border: 2px dashed var(--p); }
+
+        .theme-patel { font-family: 'Roboto Mono', monospace; --p: #f59e0b; }
+        .theme-patel .header { display: grid; grid-template-columns: 1fr 1fr; border: 3px solid #000; }
+        .theme-patel .header div { padding: 15px; }
+
+        .theme-pari { font-family: 'Inter', sans-serif; --p: #6366f1; }
+        .theme-pari .header { display: flex; flex-direction: column; align-items: flex-end; }
+        .theme-pari .info-grid { background: #f5f3ff; padding: 20px; border-radius: 20px; }
+
+        .theme-decor { font-family: 'Playfair Display', serif; --p: #0d9488; }
+        .theme-decor .header { border-bottom: 5px double var(--p); text-align: center; padding-bottom: 20px; }
+
+        /* General Structural Styles */
+        h1 { margin: 0; color: var(--p); }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 40px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 12px; text-align: left; background: #f8fafc; border-bottom: 2px solid var(--p); }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        
+        .footer-section { margin-top: auto; padding-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .total-box { text-align: right; flex-grow: 1; }
+        .grand-total { font-size: 24px; font-weight: 800; color: var(--p); }
+
+        /* Signature Styling */
+        .signature-box { text-align: center; width: 220px; margin-left: auto; margin-top: 20px; }
+        .sig-img { width: 150px; height: 60px; object-fit: contain; margin-bottom: -15px; mix-blend-mode: multiply; }
+        .signature-line { border-top: 2px solid #1e293b; padding-top: 5px; font-weight: 700; font-size: 14px; }
+
+        @media print { .no-print { display: none; } body { padding: 0; background: #fff; } .page { box-shadow: none; margin: 0; width: 100%; } }
+    </style>
+</head>
+<body id="bodyTag">
+
+    <div class="no-print">
+        <button onclick="window.print()" class="btn">Print to PDF</button>
+        <button onclick="window.history.back()" class="btn" style="background:#e2e8f0; color:#000;">Back to Edit</button>
+    </div>
+
+    <div class="page" id="content">
+        <div class="header">
+            <div>
+                <h1 id="comp_name">Company Name</h1>
+                <p id="comp_addr_header" style="margin: 5px 0 0 0; font-size: 13px; color: #475569;"></p>
+                <p id="comp_phone" style="margin: 2px 0; font-weight: 600;"></p>
+            </div>
+            <div style="text-align: right;">
+                <h2 style="margin:0;">QUOTATION</h2>
+                <p>No: <strong id="q_no"></strong><br>Date: <span id="q_date"></span></p>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-box">
+                <h3 style="color:#64748b; font-size:12px; text-transform:uppercase;">Customer</h3>
+                <p><strong id="c_name" style="font-size:18px;"></strong></p>
+                <p id="c_addr"></p>
+            </div>
+            <div class="info-box" style="text-align: right;">
+                <h3 style="color:#64748b; font-size:12px; text-transform:uppercase;">Validity</h3>
+                <p id="q_valid"></p>
+            </div>
+        </div>
+
+        <table style="flex-grow: 0;">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th style="text-align:center;">Qty</th>
+                    <th style="text-align:right;">Price</th>
+                    <th style="text-align:right;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="items_body"></tbody>
+        </table>
+
+        <div class="footer-section">
+            <div style="max-width: 50%;">
+                <p style="font-style: italic; color: #64748b; margin-bottom: 10px;" id="words_val"></p>
+                <p style="font-size: 11px; color: #94a3b8;">* This is a computer generated quotation.</p>
+            </div>
+            
+            <div class="total-box">
+                <p id="gst_info" hidden style="margin: 0;">Subtotal: ₹ <span id="sub_val"></span><br>GST (18%): ₹ <span id="gst_val"></span></p>
+                <p style="margin: 5px 0;">Grand Total: <span class="grand-total">₹ <span id="total_val"></span></span></p>
+                
+                <div class="signature-box">
+                    <img id="sig_image" src="" alt="Signature" class="sig-img">
+                    <div class="signature-line">Authorized Signature</div>
+                    <small id="sig_comp_name" style="color: var(--p); text-transform: uppercase; font-size: 10px;"></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA MAPPINGS ---
+        const companyContacts = {
+            'sahil': '+91 98240 03122',
+            'parmar': '+91 9979 95839',
+            'patel': '+91 99130 29375',
+            'pari': '+91 94023 04959',  
+            'decor': '+91 94589 49539'
+        };
+
+        const companyAddresses = {
+            'sahil': 'Sahil Infotech, 102 Business Hub, Ahmedabad, Gujarat',
+            'parmar': 'Parmar infosys, Near Main Market, Rajkot, Gujarat',
+            'patel': 'Patel computers, 45 Industrial Area, Surat, Gujarat',
+            'pari': 'Pari infotech, Opposite City Mall, Vadodara, Gujarat',
+            'decor': 'Decor infocom, 2nd Floor, Design Street, Gandhinagar, Gujarat'
+        };
+
+        // Replace 'sigs/sahil.png' with your actual image file paths or URLs
+        const companySignatures = {
+            'sahil': 'sahil.png',
+            'parmar': 'parmar.png',
+            'patel': 'patel.png',
+            'pari': 'pari.png',
+            'decor': 'decor.png'
+        };
+
+        const data = JSON.parse(sessionStorage.getItem('tempQuote'));
+        
+        if(!data) {
+            alert("No data found! Please fill the form first.");
+            window.location.href = 'index.html';
+        } else {
+            // Apply Theme and Company Name
+            document.getElementById('bodyTag').className = `theme-${data.companyType}`;
+            document.getElementById('comp_name').innerText = data.company;
+            document.getElementById('sig_comp_name').innerText = "For, " + data.company;
+            
+            // Dynamic Header Info
+            document.getElementById('comp_phone').innerText = companyContacts[data.companyType] || '+91 00000 00000';
+            document.getElementById('comp_addr_header').innerText = companyAddresses[data.companyType] || 'Address not provided';
+
+            // Dynamic Signature Image
+            const sigImg = document.getElementById('sig_image');
+            if (companySignatures[data.companyType]) {
+                sigImg.src = companySignatures[data.companyType];
+            } else {
+                sigImg.style.display = 'none'; // Hide if no image exists
+            }
+
+            // Quotation Details
+            document.getElementById('q_no').innerText = data.quoteNo;
+            document.getElementById('q_date').innerText = data.issueDate;
+            document.getElementById('c_name').innerText = data.client;
+            document.getElementById('c_addr').innerText = data.addr1 + ", " + data.addr2;
+            document.getElementById('q_valid').innerText = "Until: " + data.validDate;
+            document.getElementById('total_val').innerText = data.grandTotal;
+            document.getElementById('words_val').innerText = data.amountWords;
+
+            // Populate Items Table
+            const tbody = document.getElementById('items_body');
+            data.items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.desc}</strong><br><small style="color:#666">${item.warr}</small></td>
+                    <td style="text-align:center;">${item.qty}</td>
+                    <td style="text-align:right;">${item.price}</td>
+                    <td style="text-align:right;">${item.total}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // GST Calculations
+            if(data.gstAdded) {
+                document.getElementById('gst_info').hidden = false;
+                const total = parseFloat(data.grandTotal.replace(/,/g, ''));
+                const sub = total / 1.18;
+                document.getElementById('sub_val').innerText = sub.toLocaleString('en-IN', {maximumFractionDigits:2});
+                document.getElementById('gst_val').innerText = (total - sub).toLocaleString('en-IN', {maximumFractionDigits:2});
+            }
+        }
+    </script>
+</body>
+</html>

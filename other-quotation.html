@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation | Edit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #6366f1; --bg: #f8fafc; --border: #e2e8f0; --text: #334155; }
+        body { font-family: 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; }
+        .app-container { max-width: 950px; margin: 0 auto; }
+        .dashboard-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
+        .form-header h2 { margin: 0; color: var(--primary); }
+        .company-select-box { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
+        .company-select-box select { padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: 700; cursor: pointer; background: white; color: var(--text); }
+        .section-title { font-size: 0.9rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; margin: 25px 0 15px 0; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .items-table th { background: #f1f5f9; text-align: left; padding: 12px; font-size: 0.8rem; font-weight: 700; color: #475569; }
+        .items-table td { padding: 8px; border-top: 1px solid var(--border); }
+        .items-table input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; }
+        .items-table input:focus { background: white; border: 1px solid var(--primary); outline: none; border-radius: 4px; }
+        .warr-group { display: flex; gap: 5px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px; background: #fff; }
+        .warr-group input { width: 45px !important; text-align: center; border: none !important; }
+        .warr-group select { border: none; background: transparent; font-size: 0.8rem; outline: none; }
+        .grand-total-box { background: #f8fafc; padding: 20px; border-radius: 8px; text-align: right; margin-top: 20px; border: 1px solid var(--border); }
+        .grand-total-amount { font-size: 1.5rem; color: var(--primary); font-weight: 800; }
+        .btn-group { display: flex; gap: 15px; margin-top: 30px; }
+        .btn { flex: 1; padding: 12px 20px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; font-size: 1rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: white; border: 1px solid #ccc; color: #334155; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="dashboard-card">
+            <div class="form-header">
+                <h2 id="header-title">Quotation Details</h2>
+                <a href="index.html" class="btn btn-secondary" style="flex: 0 0 auto;">Close</a>
+            </div>
+
+            <div class="company-select-box">
+                <label style="font-weight: 700; color: #475569;">Issuing Company:</label>
+                <select id="companySelector" onchange="handleCompanyChange()">
+                    <option value="sahil">Sahil Infotech</option>
+                    <option value="parmar">Parmar Infosys</option>
+                    <option value="patel">Patel Computers</option>
+                    <option value="pari">Pari Infotech</option>
+                    <option value="decor">Decor Infocom</option>
+                </select>
+            </div>
+
+            <form onsubmit="event.preventDefault(); saveAndPreview();">
+                <div class="grid-2">
+                    <div>
+                        <div class="section-title">Client Details</div>
+                        <div class="form-group"><label>Client Name</label><input type="text" id="in_client" required></div>
+                        <div class="form-group"><label>Address Line 1</label><input type="text" id="in_addr1"></div>
+                        <div class="form-group"><label>Address Line 2</label><input type="text" id="in_addr2"></div>
+                    </div>
+                    <div>
+                        <div class="section-title">Quotation Info</div>
+                        <div class="form-group"><label>Quotation No</label><input type="text" id="in_no"></div>
+                        <div class="grid-2" style="gap:10px;">
+                            <div class="form-group"><label>Issue Date</label><input type="date" id="in_date_issue"></div>
+                            <div class="form-group"><label>Valid Until</label><input type="date" id="in_date_valid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Items</div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th width="40%">Description</th>
+                            <th width="10%">Qty</th>
+                            <th width="15%">Unit Price</th>
+                            <th width="25%">Warranty</th>
+                            <th width="10%">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+
+                <div class="grand-total-box" id="total-box">
+                    <label style="display:flex; justify-content:flex-end; align-items:center; gap:10px; cursor:pointer; font-weight:600; margin-bottom:10px;">
+                        <input type="checkbox" id="gstCheck" onchange="calculateTotals()"> Add 18% GST?
+                    </label>
+                    <div id="subtotalRow" hidden style="font-size:0.9rem; color:#64748b;">Subtotal: ₹ <span id="displaySubtotal">0.00</span></div>
+                    <span style="font-weight:600; color:#64748b;">Grand Total:</span>
+                    <span class="grand-total-amount">₹ <span id="displayTotal">0.00</span></span>
+                    <span id="displayWords" style="display:block; font-size:0.8rem; font-style:italic;">Zero Only</span>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Generate Preview >></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const tableBody = document.getElementById('table-body');
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('in_date_issue').valueAsDate = new Date();
+            handleCompanyChange();
+            createRow();
+        });
+
+        function handleCompanyChange() {
+            const company = document.getElementById('companySelector').value;
+            const configs = {
+                sahil:  { color: '#0062ff', bg: '#eff6ff', name: 'Sahil Infotech', prefix: 'SI' },
+                parmar: { color: '#10b981', bg: '#ecfdf5', name: 'Parmar Infosys', prefix: 'PI' },
+                patel:  { color: '#f59e0b', bg: '#fffbeb', name: 'Patel Computers', prefix: 'PC' },
+                pari:   { color: '#6366f1', bg: '#f5f3ff', name: 'Pari Infotech', prefix: 'PARI' },
+                decor:  { color: '#0d9488', bg: '#f0fdfa', name: 'Decor Infocom', prefix: 'DI' }
+            };
+            const sel = configs[company];
+            document.documentElement.style.setProperty('--primary', sel.color);
+            document.getElementById('header-title').innerText = sel.name + " Quotation";
+            document.getElementById('total-box').style.background = sel.bg;
+            document.getElementById('in_no').value = `${sel.prefix}/${Date.now().toString().slice(-4)}`;
+        }
+
+        function createRow() {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="i-desc" placeholder="Item Name"></td>
+                <td><input type="number" class="i-qty" value="1" style="text-align:center;"></td>
+                <td><input type="number" class="i-price" placeholder="0.00" style="text-align:right;"></td>
+                <td>
+                    <div class="warr-group">
+                        <input type="text" class="i-warr-dur" placeholder="1">
+                        <select class="i-warr-unit"><option>Year(s)</option><option>Month(s)</option></select>
+                        <select class="i-warr-type"><option>Warranty</option><option>Guarantee</option></select>
+                    </div>
+                </td>
+                <td style="text-align:right; font-weight:bold; padding-top:12px;" class="i-total">0.00</td>
+            `;
+            tableBody.appendChild(tr);
+        }
+
+        tableBody.addEventListener('input', (e) => {
+            if(e.target.classList.contains('i-desc') && e.target === tableBody.lastElementChild.querySelector('.i-desc')) createRow();
+            calculateTotals();
+        });
+
+        function calculateTotals() {
+            let subtotal = 0;
+            document.querySelectorAll('#table-body tr').forEach(row => {
+                const q = parseFloat(row.querySelector('.i-qty').value) || 0;
+                const p = parseFloat(row.querySelector('.i-price').value) || 0;
+                const t = q * p;
+                row.querySelector('.i-total').textContent = t.toFixed(2);
+                subtotal += t;
+            });
+            const isGst = document.getElementById('gstCheck').checked;
+            let total = isGst ? subtotal * 1.18 : subtotal;
+            document.getElementById('subtotalRow').hidden = !isGst;
+            document.getElementById('displaySubtotal').textContent = subtotal.toLocaleString('en-IN');
+            document.getElementById('displayTotal').textContent = total.toLocaleString('en-IN');
+            document.getElementById('displayWords').textContent = numberToWords(Math.round(total)) + " Only";
+        }
+
+        function saveAndPreview() {
+            const items = [];
+            document.querySelectorAll('#table-body tr').forEach(row => {
+                const desc = row.querySelector('.i-desc').value;
+                if(desc.trim()) {
+                    items.push({
+                        desc: desc,
+                        qty: row.querySelector('.i-qty').value,
+                        price: row.querySelector('.i-price').value,
+                        warr: `${row.querySelector('.i-warr-dur').value} ${row.querySelector('.i-warr-unit').value} ${row.querySelector('.i-warr-type').value}`,
+                        total: row.querySelector('.i-total').textContent
+                    });
+                }
+            });
+
+            const data = {
+                company: document.getElementById('companySelector').options[document.getElementById('companySelector').selectedIndex].text,
+                companyType: document.getElementById('companySelector').value,
+                client: document.getElementById('in_client').value,
+                addr1: document.getElementById('in_addr1').value,
+                addr2: document.getElementById('in_addr2').value,
+                quoteNo: document.getElementById('in_no').value,
+                issueDate: document.getElementById('in_date_issue').value,
+                validDate: document.getElementById('in_date_valid').value,
+                grandTotal: document.getElementById('displayTotal').textContent,
+                amountWords: document.getElementById('displayWords').textContent,
+                gstAdded: document.getElementById('gstCheck').checked,
+                items: items
+            };
+
+            // STORE TEMPORARILY IN SESSION (DELETED ON CLOSE)
+            sessionStorage.setItem('tempQuote', JSON.stringify(data));
+            window.location.href = 'Qua-preview.html';
+        }
+
+        function numberToWords(num) {
+            const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+            const b = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+            const n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return ''; 
+            let str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+            return str;
+        }
+    </script>
+</body>
+</html>
