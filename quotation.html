@@ -61,6 +61,7 @@
 
             <form onsubmit="event.preventDefault(); saveAndPreview();">
                 <input type="hidden" id="edit-id">
+                <input type="hidden" id="in_company" value="Foram Infotech">
                 
                 <div class="grid-2">
                     <div>
@@ -148,7 +149,6 @@
                 document.getElementById('in_no').value = '2526/' + (Math.floor(Math.random() * 1000) + 100);
             }
             
-            // Ensure at least one empty row exists
             if (tableBody.children.length === 0) createRow();
             calculateTotals();
         });
