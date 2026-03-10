@@ -108,29 +108,30 @@
         <table class="tbl">
             <thead>
                 <tr>
-                    <th style="text-align: left;">Description</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Warranty / Guarantee</th>
-                    <th>Subtotal</th>
+                    <th style="text-align: left; width: 25%;">Description</th>
+                    <th style="text-align: left; width: 20%;">Remarks</th>
+                    <th style="width: 8%;">Qty</th>
+                    <th style="width: 15%;">Unit Price</th>
+                    <th style="width: 20%;">Warranty / Guarantee</th>
+                    <th style="width: 12%;">Subtotal</th>
                 </tr>
             </thead>
             <tbody id="p_table_body"></tbody>
             <tfoot>
                 <tr id="preview-subtotal-row" class="hidden">
-                    <td colspan="4" class="text-right"><strong>Subtotal</strong></td>
+                    <td colspan="5" class="text-right"><strong>Subtotal</strong></td>
                     <td class="text-right"><span id="p_subtotal"></span></td>
                 </tr>
                 <tr id="preview-gst-row" class="hidden">
-                    <td colspan="4" class="text-right"><strong>GST (18%)</strong></td>
+                    <td colspan="5" class="text-right"><strong>GST (18%)</strong></td>
                     <td class="text-right"><span id="p_gst"></span></td>
                 </tr>
                 <tr>
-                    <td colspan="4" class="text-right"><strong>Grand Total</strong></td>
+                    <td colspan="5" class="text-right"><strong>Grand Total</strong></td>
                     <td class="text-right"><strong id="p_grand"></strong></td>
                 </tr>
                 <tr>
-                    <td colspan="5" style="border:none; padding-top: 10px;">
+                    <td colspan="6" style="border:none; padding-top: 10px;">
                         <strong>In Words:</strong> <span id="p_words" style="font-style: italic;"></span>
                     </td>
                 </tr>
@@ -211,8 +212,10 @@
                 const total = price * qty;
                 runningSubtotal += total;
 
+                // ADDED: Added a <td> for item.remarks
                 tr.innerHTML = `
                     <td>${item.desc}</td>
+                    <td>${item.remarks || '-'}</td>
                     <td class="text-center">${item.qty}</td>
                     <td class="text-right">${price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                     <td class="text-center">${item.warr || '-'}</td>
