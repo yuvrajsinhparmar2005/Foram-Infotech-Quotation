@@ -11,7 +11,7 @@
     <style>
         :root { --primary: #0062ff; --bg: #f8fafc; --border: #e2e8f0; --text: #334155; }
         body { font-family: 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .app-container { max-width: 950px; margin: 0 auto; }
+        .app-container { max-width: 1050px; /* Slightly widened to accommodate the new column */ margin: 0 auto; }
 
         .dashboard-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
         .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
@@ -85,10 +85,11 @@
                 <table class="items-table" id="itemsTable">
                     <thead>
                         <tr>
-                            <th width="35%">Description</th>
+                            <th width="22%">Description</th>
+                            <th width="15%">Remarks (Opt)</th>
                             <th width="8%">Qty</th>
                             <th width="15%">Unit Price</th>
-                            <th width="32%">Warranty / Guarantee</th>
+                            <th width="30%">Warranty / Guarantee</th>
                             <th width="10%">Total</th>
                         </tr>
                     </thead>
@@ -168,6 +169,7 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><input type="text" class="i-desc" placeholder="Item Name" value="${data.desc || ''}"></td>
+                <td><input type="text" class="i-remarks" placeholder="Remarks" value="${data.remarks || ''}"></td>
                 <td><input type="number" class="i-qty" value="${data.qty || 1}" style="text-align:center;"></td>
                 <td><input type="number" class="i-price" placeholder="0.00" value="${data.price || ''}" style="text-align:right;"></td>
                 <td>
@@ -218,6 +220,7 @@
         tableBody.addEventListener('input', (e) => {
             if(e.target.classList.contains('i-desc')) {
                 const row = e.target.closest('tr');
+                // Create a new row when the user starts typing in the last description input
                 if(row === tableBody.lastElementChild && e.target.value.trim() !== '') createRow();
             }
             if(e.target.classList.contains('i-qty') || e.target.classList.contains('i-price')) calculateTotals();
@@ -235,6 +238,7 @@
 
                     items.push({
                         desc: desc,
+                        remarks: row.querySelector('.i-remarks').value, // Captured the new remarks field
                         qty: row.querySelector('.i-qty').value,
                         price: row.querySelector('.i-price').value,
                         warr: warrString, 
@@ -284,5 +288,5 @@
             return str + 'Only';
         }
     </script>
-</body>
+</body> 
 </html>
