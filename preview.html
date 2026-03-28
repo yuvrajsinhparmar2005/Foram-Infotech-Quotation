@@ -1,264 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview Quotation</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview Quotation</title>
 
-    <style>
-        body { background: #525659; font-family: 'Noto Sans', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        /* CONTROLS */
-        .controls { 
-            position: sticky; top: 20px; z-index: 100; 
-            background: white; padding: 10px 20px; border-radius: 50px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-            display: flex; gap: 15px; margin-bottom: 20px; 
-        }
-        
-        .btn { 
-            padding: 8px 20px; border-radius: 20px; border: none; 
-            font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; 
-            text-decoration: none; color: #333; font-size: 0.9rem;
-        }
-        .btn:hover { transform: scale(1.02); }
-        .btn-edit { background: #f1f5f9; border: 1px solid #ccc; }
-        .btn-download { background: #10b981; color: white; }
-        .btn-back { background: #0062ff; color: white; }
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-        /* A4 PAPER */
-        #invoice { 
-            width: 210mm; 
-            min-height: 297mm; 
-            background: white; 
-            padding: 40px; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
-            box-sizing: border-box; 
-            position: relative; 
-            color: #000; 
-            line-height: 1.4; 
-        }
-        
-        /* INVOICE CONTENT */
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-        
-        /* Logo */
-        .logo-box { font-size: 32px; font-weight: 900;  padding: 0px 15px; display: inline-block; letter-spacing: 2px; }
-        
-        .company { text-align: right; }
-        .company h1 { margin: 0; font-size: 24px; color: #0062ff; text-transform: uppercase; font-weight: 800; }
-        .company h3 { margin: 0; font-size: 14px; letter-spacing: 2px; font-weight: 700; color: #555; }
-        
-        .grid { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 12px; }
-        .to { width: 50%; }
-        .meta { width: 40%; text-align: right; }
-        
-        /* Helper class to hide rows */
-        .hidden { display: none !important; }
+<style>
+body {
+    background: #525659;
+    font-family: 'Noto Sans', sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
-        .tbl th { background: #eef2ff; border: 1px solid #000; padding: 8px; text-align: center; font-weight: 700; }
-        .tbl td { border: 1px solid #000; padding: 8px; }
-        
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        
-        .footer { display: flex; justify-content: space-between; margin-top: 20px; font-size: 11px; }
-        .bank { border: 1px solid #000; padding: 10px; width: 55%; }
-        .sign { width: 40%; text-align: right; display: flex; flex-direction: column; justify-content: space-between; }
-        .sign-line { border-top: 1px solid #000; width: 100%; margin-top: 50px; display: inline-block; padding-top: 5px; }
-        
-        .bottom { position: absolute; bottom: 30px; left: 40px; right: 40px; border-top: 2px solid #0062ff; padding-top: 10px; text-align: center; font-size: 10px; color: #444; }
-    </style>
+/* CONTROLS */
+.controls {
+    position: sticky;
+    top: 20px;
+    z-index: 100;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.btn-edit { background: #f1f5f9; border: 1px solid #ccc; }
+.btn-download { background: #10b981; color: white; }
+.btn-back { background: #0062ff; color: white; }
+
+/* A4 - FIXED FOR PDF GENERATION */
+#invoice {
+    width: 800px; /* Exact pixels prevent responsive squishing in the PDF */
+    min-height: 1122px; /* A4 ratio */
+    background: white;
+    padding: 40px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+    position: relative;
+    color: #000;
+    margin: 0 auto;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* GRID */
+.grid {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    font-size: 12px;
+}
+
+/* TABLE FIX */
+.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 20px;
+    table-layout: fixed;
+}
+
+.tbl th {
+    background: #eef2ff;
+    border: 1px solid #000;
+    padding: 8px;
+}
+
+.tbl td {
+    border: 1px solid #000;
+    padding: 8px;
+    word-break: break-word;
+    white-space: normal;
+    vertical-align: top;
+}
+
+.tbl tr {
+    page-break-inside: avoid;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* FOOTER SAME DESIGN */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    font-size: 11px;
+}
+
+.bank {
+    border: 1px solid #000;
+    padding: 10px;
+    width: 55%;
+}
+
+.sign {
+    width: 40%;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sign-line {
+    border-top: 1px solid #000;
+    width: 100%;
+    margin-top: 50px;
+    display: inline-block;
+    padding-top: 5px;
+}
+
+/* FIXED FOOTER (no overlap) */
+.bottom {
+    margin-top: 20px;
+    border-top: 2px solid #0062ff;
+    padding-top: 10px;
+    text-align: center;
+    font-size: 10px;
+    color: #444;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="controls">
-        <a href="#" id="btn-edit" class="btn btn-edit"><span class="material-icons">edit</span> Edit</a>
-        <button class="btn btn-download" onclick="downloadPDF()"><span class="material-icons">download</span> Download PDF</button>
-        <a href="index.html" class="btn btn-back"><span class="material-icons">arrow_back</span> Back to List</a>
+<div class="controls">
+    <a href="#" id="btn-edit" class="btn btn-edit">
+        <span class="material-icons">edit</span> Edit
+    </a>
+    <button class="btn btn-download" onclick="downloadPDF()">
+        <span class="material-icons">download</span> Download PDF
+    </button>
+    <a href="index.html" class="btn btn-back">
+        <span class="material-icons">arrow_back</span> Back
+    </a>
+</div>
+
+<div id="invoice">
+
+<div class="header">
+    <div><img src="Foram-logo.jpg" style="width:100px;" alt="Logo"></div>
+    <div><img src="Foram-infotech-Name.jpg" style="width:200px;" alt="Company Name"></div>
+</div>
+
+<div class="grid">
+    <div>
+        <strong>To,</strong><br>
+        <span id="p_client"></span><br>
+        <span id="p_addr1"></span><br>
+        <span id="p_addr2"></span>
     </div>
 
-    <div id="invoice">
-        <div class="header">
-            <div class="logo-box"><img src="Foram-logo.jpg" alt="" style="width: 100px;"></div> 
-            <div class="company">
-                <img src="Foram-infotech-Name.jpg" alt="" style="width: 200px;">
-            </div>
-        </div>
+    <div style="text-align:right;">
+        <div><strong>No:</strong> <span id="p_no"></span></div>
+        <div><strong>Date:</strong> <span id="p_issue"></span></div>
+    </div>
+</div>
 
-        <div class="grid">
-            <div class="to">
-                <strong>To,</strong><br>
-                <span id="p_client" style="font-size:14px; font-weight:bold;"></span><br>
-                <span id="p_addr1"></span><br>
-                <span id="p_addr2"></span>
-            </div>
-            <div class="meta">
-                <div><strong>Quotation No:</strong> <span id="p_no"></span></div>
-                <div><strong>Issue Date:</strong> <span id="p_issue"></span></div>
-                <div id="valid-row"><strong>Valid Until:</strong> <span id="p_valid"></span></div>
-            </div>
-        </div>
+<table class="tbl">
+<thead>
+<tr>
+<th style="width:30%">Description</th>
+<th style="width:18%">Remarks</th>
+<th style="width:7%">Qty</th>
+<th style="width:15%">Price</th>
+<th style="width:15%">Warranty</th>
+<th style="width:15%">Total</th>
+</tr>
+</thead>
 
-        <table class="tbl">
-            <thead>
-                <tr>
-                    <th style="text-align: left; width: 25%;">Description</th>
-                    <th style="text-align: left; width: 20%;">Remarks</th>
-                    <th style="width: 8%;">Qty</th>
-                    <th style="width: 15%;">Unit Price</th>
-                    <th style="width: 20%;">Warranty / Guarantee</th>
-                    <th style="width: 12%;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody id="p_table_body"></tbody>
-            <tfoot>
-                <tr id="preview-subtotal-row" class="hidden">
-                    <td colspan="5" class="text-right"><strong>Subtotal</strong></td>
-                    <td class="text-right"><span id="p_subtotal"></span></td>
-                </tr>
-                <tr id="preview-gst-row" class="hidden">
-                    <td colspan="5" class="text-right"><strong>GST (18%)</strong></td>
-                    <td class="text-right"><span id="p_gst"></span></td>
-                </tr>
-                <tr>
-                    <td colspan="5" class="text-right"><strong>Grand Total</strong></td>
-                    <td class="text-right"><strong id="p_grand"></strong></td>
-                </tr>
-                <tr>
-                    <td colspan="6" style="border:none; padding-top: 10px;">
-                        <strong>In Words:</strong> <span id="p_words" style="font-style: italic;"></span>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+<tbody id="p_table_body"></tbody>
 
-        <div class="footer">
-            <div class="bank">
-                <strong style="text-decoration:underline;">Bank Details</strong><br>
-                <strong>Bank Name:</strong> HDFC Bank<br>
-                <strong>Account No:</strong> 50200113927631<br>
-                <strong>IFSC Code:</strong> HDFC0009655<br>
-                <strong>Branch:</strong> VADAJ, AHMEDABAD
-                <div style="margin-top:10px; font-size:10px;">
-                    <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.<br>
-                    1. Goods once sold will not be accepted back.<br>
-                    2. Payment by cheque/draft in favour of "Foram Infotech".<br>
-                    3. Subject to Ahmedabad jurisdiction only.
-                </div>
-            </div>
-            <div class="sign">
-                <div>for, <strong>FORAM INFOTECH</strong></div>
-                <div class="sign-line">Authorised Signatory</div>
-            </div>
-        </div>
+<tfoot>
+<tr>
+<td colspan="5" class="text-right"><b>Grand Total</b></td>
+<td class="text-right"><b id="p_grand"></b></td>
+</tr>
+<tr>
+<td colspan="6"><b>In Words:</b> <span id="p_words"></span></td>
+</tr>
+</tfoot>
+</table>
 
-        <div class="bottom">
-            <strong>New Laptop, Desktop Sales & Service, Software Install, Data Recovery & AMC</strong><br>
-            Shop No. 137, First Floor, Ratnadeep Flora, Nr. SV Square, New Ranip, Ahmedabad - 382470<br>
-            M: 88666 23434, 70436 20212
+<div class="footer">
+    <div class="bank">
+        <strong style="text-decoration:underline;">Bank Details</strong><br>
+        <strong>Bank Name:</strong> HDFC Bank<br>
+        <strong>Account No:</strong> 50200113927631<br>
+        <strong>IFSC Code:</strong> HDFC0009655<br>
+        <strong>Branch:</strong> VADAJ, AHMEDABAD
+        <div style="margin-top:10px; font-size:10px;">
+            <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described.<br>
+            1. Goods once sold will not be accepted back.<br>
+            2. Payment by cheque/draft in favour of "Foram Infotech".<br>
+            3. Subject to Ahmedabad jurisdiction only.
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
+    <div class="sign">
+        <div>for, <strong>FORAM INFOTECH</strong></div>
+        <div class="sign-line">Authorised Signatory</div>
+    </div>
+</div>
 
-            if(!id) { alert("No ID found in URL."); return; }
+<div class="bottom">
+    New Laptop, Desktop Sales & Service, Software Install, Data Recovery & AMC<br>
+    Ahmedabad
+</div>
 
-            const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
-            const q = allQuotes.find(item => item.id == id);
+</div>
 
-            if(!q) { alert("Quotation not found."); return; }
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-            // Set Edit link
-            document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
+    const id = new URLSearchParams(window.location.search).get('id');
 
-            // Populate Client Info
-            document.getElementById('p_client').textContent = q.client || '';
-            document.getElementById('p_addr1').textContent = q.addr1 || '';
-            document.getElementById('p_addr2').textContent = q.addr2 || '';
-            document.getElementById('p_no').textContent = q.quoteNo || '';
-            
-            const formatDate = (d) => {
-                if(!d) return '';
-                const date = new Date(d);
-                return date.toLocaleDateString('en-GB'); // DD/MM/YYYY
-            };
+    if (!id) {
+        alert("Invalid ID");
+        return;
+    }
 
-            document.getElementById('p_issue').textContent = formatDate(q.issueDate);
-            
-            if (q.validDate) {
-                document.getElementById('p_valid').textContent = formatDate(q.validDate);
-                document.getElementById('valid-row').classList.remove('hidden');
-            } else {
-                document.getElementById('valid-row').classList.add('hidden');
-            }
+    const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
+    const q = allQuotes.find(x => x.id == id);
 
-            // Populate Items Table
-            const tbody = document.getElementById('p_table_body');
-            let runningSubtotal = 0;
+    if (!q) {
+        alert("Quotation not found");
+        return;
+    }
 
-            q.items.forEach(item => {
-                const tr = document.createElement('tr');
-                const price = parseFloat(item.price) || 0;
-                const qty = parseFloat(item.qty) || 0;
-                const total = price * qty;
-                runningSubtotal += total;
+    // Fixed Edit Button mapping
+    document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
 
-                // ADDED: Added a <td> for item.remarks
-                tr.innerHTML = `
-                    <td>${item.desc}</td>
-                    <td>${item.remarks || '-'}</td>
-                    <td class="text-center">${item.qty}</td>
-                    <td class="text-right">${price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                    <td class="text-center">${item.warr || '-'}</td>
-                    <td class="text-right">${total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+    document.getElementById('p_client').textContent = q.client;
+    document.getElementById('p_addr1').textContent = q.addr1;
+    document.getElementById('p_addr2').textContent = q.addr2;
+    document.getElementById('p_no').textContent = q.quoteNo;
+    document.getElementById('p_issue').textContent = q.issueDate || '';
 
-            // Handle Totals and GST
-            if (q.gstAdded) {
-                const gstVal = runningSubtotal * 0.18;
-                document.getElementById('preview-subtotal-row').classList.remove('hidden');
-                document.getElementById('preview-gst-row').classList.remove('hidden');
-                document.getElementById('p_subtotal').textContent = runningSubtotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-                document.getElementById('p_gst').textContent = gstVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-            }
+    const tbody = document.getElementById('p_table_body');
 
-            document.getElementById('p_grand').textContent = "₹ " + (q.grandTotal || "0.00");
-            document.getElementById('p_words').textContent = q.amountWords || '';
-        });
+    let total = 0;
 
-        function downloadPDF() {
-            window.scrollTo(0, 0);
-            const element = document.getElementById('invoice');
-            const quoteNo = document.getElementById('p_no').textContent.replace(/[\/\\?%*:|"<>]/g, '-') || 'Download';
-            const finalFileName = `Quotation_${quoteNo}.pdf`;
+    q.items.forEach(item => {
 
-            // Prepare styles for PDF capture
-            const originalShadow = element.style.boxShadow;
-            element.style.boxShadow = 'none';
+        const qty = parseFloat(item.qty) || 0;
+        const price = parseFloat(item.price) || 0;
+        const t = qty * price;
+        total += t;
 
-            const opt = {
-                margin: 0,
-                filename: finalFileName,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+        const tr = document.createElement('tr');
 
-            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-                element.style.boxShadow = originalShadow; // Restore shadow
-            }).save();
-        }
-    </script>
+        tr.innerHTML = `
+<td style="white-space:pre-line;">${item.desc}</td>
+<td style="white-space:pre-line;">${item.remarks || '-'}</td>
+<td class="text-center">${qty}</td>
+<td class="text-right">${price.toFixed(2)}</td>
+<td class="text-center">${item.warr || '-'}</td>
+<td class="text-right">${t.toFixed(2)}</td>
+`;
+
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('p_grand').textContent = "₹ " + total.toFixed(2);
+    document.getElementById('p_words').textContent = q.amountWords;
+
+});
+
+function downloadPDF() {
+    const element = document.getElementById('invoice');
+
+    // 1. Temporarily remove shadow and margin to fix the alignment bug
+    element.style.boxShadow = 'none';
+    element.style.marginLeft = '350px'; 
+
+    // 2. Scroll to the very top-left to prevent any vertical/horizontal cutoff
+    window.scrollTo(0, 0);
+
+    // 3. Setup precise rendering options
+    const opt = {
+        margin:       0, 
+        filename:     'Foram_Infotech_Quotation.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            windowWidth: 800,
+            scrollX: 0,
+            scrollY: 0
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 4. Generate PDF, then restore the web preview styling
+    html2pdf().set(opt).from(element).save().then(() => {
+        element.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
+        element.style.margin = '0 auto';
+    });
+}
+</script>
+
 </body>
 </html>
