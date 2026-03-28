@@ -2,268 +2,257 @@
 <html lang="en">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Preview Quotation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Quotation</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<style>
-body {
-    background: #525659;
-    font-family: 'Noto Sans', sans-serif;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+    <style>
+        body {
+            background: #525659;
+            font-family: 'Noto Sans', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-/* CONTROLS */
-.controls {
-    position: sticky;
-    top: 20px;
-    z-index: 100;
-    background: white;
-    padding: 10px 20px;
-    border-radius: 50px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-}
+        /* CONTROLS */
+        .controls {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-.btn {
-    padding: 8px 20px;
-    border-radius: 20px;
-    border: none;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    text-decoration: none;
-    color: #333;
-    font-size: 0.9rem;
-}
+        .btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9rem;
+        }
 
-.btn-edit { background: #f1f5f9; border: 1px solid #ccc; }
-.btn-download { background: #10b981; color: white; }
-.btn-back { background: #0062ff; color: white; }
+        .btn-edit { background: #f1f5f9; border: 1px solid #ccc; }
+        .btn-download { background: #10b981; color: white; }
+        .btn-back { background: #0062ff; color: white; }
 
-/* A4 - FIXED FOR PDF GENERATION */
-#invoice {
-    width: 800px; /* Exact pixels prevent responsive squishing in the PDF */
-    min-height: 1122px; /* A4 ratio */
-    background: white;
-    padding: 40px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    box-sizing: border-box;
-    position: relative;
-    color: #000;
-    margin: 0 auto;
-}
+        /* A4 CONTAINER */
+        #invoice {
+            width: 800px;
+            min-height: 1122px;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            position: relative;
+            color: #000;
+            margin: 0 auto;
+        }
 
-/* HEADER */
-.header {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 2px solid #000;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
 
-/* GRID */
-.grid {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    font-size: 12px;
-}
+        .grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 12px;
+        }
 
-/* TABLE FIX */
-.tbl {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    margin-bottom: 20px;
-    table-layout: fixed;
-}
+        .tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
 
-.tbl th {
-    background: #eef2ff;
-    border: 1px solid #000;
-    padding: 8px;
-}
+        .tbl th {
+            background: #eef2ff;
+            border: 1px solid #000;
+            padding: 8px;
+        }
 
-.tbl td {
-    border: 1px solid #000;
-    padding: 8px;
-    word-break: break-word;
-    white-space: normal;
-    vertical-align: top;
-}
+        .tbl td {
+            border: 1px solid #000;
+            padding: 8px;
+            word-break: break-word;
+            white-space: normal;
+            vertical-align: top;
+        }
 
-.tbl tr {
-    page-break-inside: avoid;
-}
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
 
-.text-right { text-align: right; }
-.text-center { text-align: center; }
+        .gst-label {
+            font-size: 10px;
+            color: #d32f2f; /* Reddish color to make it clear */
+            display: block;
+            font-weight: 600;
+            margin-top: 2px;
+        }
 
-/* FOOTER SAME DESIGN */
-.footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    font-size: 11px;
-}
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 11px;
+        }
 
-.bank {
-    border: 1px solid #000;
-    padding: 10px;
-    width: 55%;
-}
+        .bank {
+            border: 1px solid #000;
+            padding: 10px;
+            width: 55%;
+        }
 
-.sign {
-    width: 40%;
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+        .sign {
+            width: 40%;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-.sign-line {
-    border-top: 1px solid #000;
-    width: 100%;
-    margin-top: 50px;
-    display: inline-block;
-    padding-top: 5px;
-}
+        .sign-line {
+            border-top: 1px solid #000;
+            width: 100%;
+            margin-top: 50px;
+            display: inline-block;
+            padding-top: 5px;
+        }
 
-/* FIXED FOOTER (no overlap) */
-.bottom {
-    margin-top: 20px;
-    border-top: 2px solid #0062ff;
-    padding-top: 10px;
-    text-align: center;
-    font-size: 10px;
-    color: #444;
-}
-</style>
+        .bottom {
+            margin-top: 20px;
+            border-top: 2px solid #0062ff;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 10px;
+            color: #444;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="controls">
-    <a href="#" id="btn-edit" class="btn btn-edit">
-        <span class="material-icons">edit</span> Edit
-    </a>
-    <button class="btn btn-download" onclick="downloadPDF()">
-        <span class="material-icons">download</span> Download PDF
-    </button>
-    <a href="index.html" class="btn btn-back">
-        <span class="material-icons">arrow_back</span> Back
-    </a>
-</div>
-
-<div id="invoice">
-
-<div class="header">
-    <div><img src="Foram-logo.jpg" style="width:100px;" alt="Logo"></div>
-    <div><img src="Foram-infotech-Name.jpg" style="width:200px;" alt="Company Name"></div>
-</div>
-
-<div class="grid">
-    <div>
-        <strong>To,</strong><br>
-        <span id="p_client"></span><br>
-        <span id="p_addr1"></span><br>
-        <span id="p_addr2"></span>
+    <div class="controls">
+        <a href="#" id="btn-edit" class="btn btn-edit">
+            <span class="material-icons">edit</span> Edit
+        </a>
+        <button class="btn btn-download" onclick="downloadPDF()">
+            <span class="material-icons">download</span> Download PDF
+        </button>
+        <a href="index.html" class="btn btn-back">
+            <span class="material-icons">arrow_back</span> Back
+        </a>
     </div>
 
-    <div style="text-align:right;">
-        <div><strong>No:</strong> <span id="p_no"></span></div>
-        <div><strong>Date:</strong> <span id="p_issue"></span></div>
-    </div>
-</div>
+    <div id="invoice">
+        <div class="header">
+            <div><img src="Foram-logo.jpg" style="width:100px;" alt="Logo"></div>
+            <div><img src="Foram-infotech-Name.jpg" style="width:200px;" alt="Company Name"></div>
+        </div>
 
-<table class="tbl">
-<thead>
-<tr>
-<th style="width:30%">Description</th>
-<th style="width:18%">Remarks</th>
-<th style="width:7%">Qty</th>
-<th style="width:15%">Price</th>
-<th style="width:15%">Warranty</th>
-<th style="width:15%">Total</th>
-</tr>
-</thead>
+        <div class="grid">
+            <div>
+                <strong>To,</strong><br>
+                <span id="p_client"></span><br>
+                <span id="p_addr1"></span><br>
+                <span id="p_addr2"></span>
+            </div>
 
-<tbody id="p_table_body"></tbody>
+            <div style="text-align:right;">
+                <div><strong>No:</strong> <span id="p_no"></span></div>
+                <div><strong>Date:</strong> <span id="p_issue"></span></div>
+            </div>
+        </div>
 
-<tfoot>
-<tr>
-<td colspan="5" class="text-right"><b>Grand Total</b></td>
-<td class="text-right"><b id="p_grand"></b></td>
-</tr>
-<tr>
-<td colspan="6"><b>In Words:</b> <span id="p_words"></span></td>
-</tr>
-</tfoot>
-</table>
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th style="width:30%">Description</th>
+                    <th style="width:18%">Remarks</th>
+                    <th style="width:7%">Qty</th>
+                    <th style="width:15%">Price</th>
+                    <th style="width:15%">Warranty</th>
+                    <th style="width:15%">Total</th>
+                </tr>
+            </thead>
 
-<div class="footer">
-    <div class="bank">
-        <strong style="text-decoration:underline;">Bank Details</strong><br>
-        <strong>Bank Name:</strong> HDFC Bank<br>
-        <strong>Account No:</strong> 50200113927631<br>
-        <strong>IFSC Code:</strong> HDFC0009655<br>
-        <strong>Branch:</strong> VADAJ, AHMEDABAD
-        <div style="margin-top:10px; font-size:10px;">
-            <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described.<br>
-            1. Goods once sold will not be accepted back.<br>
-            2. Payment by cheque/draft in favour of "Foram Infotech".<br>
-            3. Subject to Ahmedabad jurisdiction only.
+            <tbody id="p_table_body"></tbody>
+
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="text-right"><b>Grand Total</b></td>
+                    <td class="text-right">
+                        <b id="p_grand"></b>
+                        <span id="p_gst_note" class="gst-label"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6"><b>In Words:</b> <span id="p_words"></span></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="footer">
+            <div class="bank">
+                <strong style="text-decoration:underline;">Bank Details</strong><br>
+                <strong>Bank Name:</strong> HDFC Bank<br>
+                <strong>Account No:</strong> 50200113927631<br>
+                <strong>IFSC Code:</strong> HDFC0009655<br>
+                <strong>Branch:</strong> VADAJ, AHMEDABAD
+                <div style="margin-top:10px; font-size:10px;">
+                    <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described.<br>
+                    1. Goods once sold will not be accepted back.<br>
+                    2. Payment by cheque/draft in favour of "Foram Infotech".<br>
+                    3. Subject to Ahmedabad jurisdiction only.
+                </div>
+            </div>
+
+            <div class="sign">
+                <div>for, <strong>FORAM INFOTECH</strong></div>
+                <div class="sign-line">Authorised Signatory</div>
+            </div>
+        </div>
+
+        <div class="bottom">
+            New Laptop, Desktop Sales & Service, Software Install, Data Recovery & AMC<br>
+            Ahmedabad
         </div>
     </div>
 
-    <div class="sign">
-        <div>for, <strong>FORAM INFOTECH</strong></div>
-        <div class="sign-line">Authorised Signatory</div>
-    </div>
-</div>
-
-<div class="bottom">
-    New Laptop, Desktop Sales & Service, Software Install, Data Recovery & AMC<br>
-    Ahmedabad
-</div>
-
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
+    <script>
+ document.addEventListener('DOMContentLoaded', () => {
     const id = new URLSearchParams(window.location.search).get('id');
-
-    if (!id) {
-        alert("Invalid ID");
-        return;
-    }
+    if (!id) { alert("Invalid ID"); return; }
 
     const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
     const q = allQuotes.find(x => x.id == id);
+    if (!q) { alert("Quotation not found"); return; }
 
-    if (!q) {
-        alert("Quotation not found");
-        return;
-    }
-
-    // Fixed Edit Button mapping
     document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
-
     document.getElementById('p_client').textContent = q.client;
     document.getElementById('p_addr1').textContent = q.addr1;
     document.getElementById('p_addr2').textContent = q.addr2;
@@ -271,67 +260,47 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('p_issue').textContent = q.issueDate || '';
 
     const tbody = document.getElementById('p_table_body');
-
-    let total = 0;
+    let subtotal = 0;
 
     q.items.forEach(item => {
-
         const qty = parseFloat(item.qty) || 0;
         const price = parseFloat(item.price) || 0;
         const t = qty * price;
-        total += t;
+        subtotal += t;
 
         const tr = document.createElement('tr');
-
         tr.innerHTML = `
-<td style="white-space:pre-line;">${item.desc}</td>
-<td style="white-space:pre-line;">${item.remarks || '-'}</td>
-<td class="text-center">${qty}</td>
-<td class="text-right">${price.toFixed(2)}</td>
-<td class="text-center">${item.warr || '-'}</td>
-<td class="text-right">${t.toFixed(2)}</td>
-`;
-
+            <td style="white-space:pre-line;">${item.desc}</td>
+            <td style="white-space:pre-line;">${item.remarks || '-'}</td>
+            <td class="text-center">${qty}</td>
+            <td class="text-right">${price.toFixed(2)}</td>
+            <td class="text-center">${item.warr || '-'}</td>
+            <td class="text-right">${t.toFixed(2)}</td>
+        `;
         tbody.appendChild(tr);
     });
 
-    document.getElementById('p_grand').textContent = "₹ " + total.toFixed(2);
-    document.getElementById('p_words').textContent = q.amountWords;
+    // --- CRITICAL FIX START ---
+    // We check for 'gstAdded' (your Edit page name) OR 'isGst' (just in case)
+    const isGstEnabled = (q.gstAdded === true || q.gstAdded === "true" || q.isGst === true);
 
-});
+    let finalAmount = subtotal;
+    if (isGstEnabled) {
+        finalAmount = subtotal * 1.18; // Adds 18% GST
+        document.getElementById('p_gst_note').textContent = "(Incl. 18% GST)";
+    } else {
+        document.getElementById('p_gst_note').textContent = "";
+    }
+    // --- CRITICAL FIX END ---
 
-function downloadPDF() {
-    const element = document.getElementById('invoice');
-
-    // 1. Temporarily remove shadow and margin to fix the alignment bug
-    element.style.boxShadow = 'none';
-    element.style.marginLeft = '350px'; 
-
-    // 2. Scroll to the very top-left to prevent any vertical/horizontal cutoff
-    window.scrollTo(0, 0);
-
-    // 3. Setup precise rendering options
-    const opt = {
-        margin:       0, 
-        filename:     'Foram_Infotech_Quotation.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
-            windowWidth: 800,
-            scrollX: 0,
-            scrollY: 0
-        },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    // 4. Generate PDF, then restore the web preview styling
-    html2pdf().set(opt).from(element).save().then(() => {
-        element.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-        element.style.margin = '0 auto';
+    // Format the number to Indian Currency style (₹ XX,XX,XXX.00)
+    document.getElementById('p_grand').textContent = "₹ " + finalAmount.toLocaleString('en-IN', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
     });
-}
-</script>
 
+    document.getElementById('p_words').textContent = q.amountWords;
+});
+    </script>
 </body>
 </html>
