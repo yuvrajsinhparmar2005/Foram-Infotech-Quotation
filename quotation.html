@@ -11,7 +11,7 @@
     <style>
         :root { --primary: #0062ff; --bg: #f8fafc; --border: #e2e8f0; --text: #334155; }
         body { font-family: 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .app-container { max-width: 1050px; /* Slightly widened to accommodate the new column */ margin: 0 auto; }
+        .app-container { max-width: 1050px; margin: 0 auto; }
 
         .dashboard-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
         .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
@@ -39,7 +39,7 @@
         .grand-total-box { background: #eff6ff; padding: 20px; border-radius: 8px; text-align: right; margin-top: 20px; border: 1px solid #bfdbfe; }
         .grand-total-amount { font-size: 1.5rem; color: var(--primary); font-weight: 800; }
         
-        .gst-wrapper { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 600; color: #475569; cursor: pointer; }
+        .gst-wrapper { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 8px; font-weight: 600; color: #475569; cursor: pointer; }
         .gst-wrapper input { width: 18px; height: 18px; cursor: pointer; }
 
         .btn-group { display: flex; gap: 15px; margin-top: 30px; }
@@ -72,7 +72,6 @@
                     </div>
                     <div>
                         <div class="section-title">Info</div>
-                        
                         <div class="form-group"><label>Quotation No</label><input type="text" id="in_no"></div>
                         <div class="grid-2" style="gap:10px;">
                             <div class="form-group"><label>Issue Date</label><input type="date" id="in_date_issue"></div>
@@ -100,6 +99,11 @@
                     <label class="gst-wrapper">
                         <input type="checkbox" id="gstCheck" onchange="calculateTotals()">
                         Add 18% GST?
+                    </label>
+
+                    <label class="gst-wrapper">
+                        <input type="checkbox" id="roundCheck" onchange="calculateTotals()">
+                        Round Figure?
                     </label>
 
                     <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 5px;" id="subtotalRow" hidden>
@@ -141,6 +145,7 @@
                     document.getElementById('in_date_issue').value = q.issueDate;
                     document.getElementById('in_date_valid').value = q.validDate;
                     document.getElementById('gstCheck').checked = q.gstAdded || false;
+                    document.getElementById('roundCheck').checked = q.roundAdded || false;
                     
                     if(q.items && q.items.length > 0) {
                         q.items.forEach(item => createRow(item));
@@ -202,6 +207,7 @@
             });
 
             const isGst = document.getElementById('gstCheck').checked;
+            const isRound = document.getElementById('roundCheck').checked;
             let grandTotal = subtotal;
 
             if (isGst) {
@@ -213,14 +219,21 @@
                 document.getElementById('subtotalRow').hidden = true;
             }
 
-            document.getElementById('displayTotal').textContent = grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            // Apply Rounding if checked (Math.ceil turns 500.25 into 501)
+            if (isRound) {
+                grandTotal = Math.ceil(grandTotal);
+            }
+
+            document.getElementById('displayTotal').textContent = grandTotal.toLocaleString('en-IN', {
+                minimumFractionDigits: isRound ? 0 : 2,
+                maximumFractionDigits: 2
+            });
             document.getElementById('displayWords').textContent = numberToWords(Math.round(grandTotal));
         }
 
         tableBody.addEventListener('input', (e) => {
             if(e.target.classList.contains('i-desc')) {
                 const row = e.target.closest('tr');
-                // Create a new row when the user starts typing in the last description input
                 if(row === tableBody.lastElementChild && e.target.value.trim() !== '') createRow();
             }
             if(e.target.classList.contains('i-qty') || e.target.classList.contains('i-price')) calculateTotals();
@@ -238,7 +251,7 @@
 
                     items.push({
                         desc: desc,
-                        remarks: row.querySelector('.i-remarks').value, // Captured the new remarks field
+                        remarks: row.querySelector('.i-remarks').value,
                         qty: row.querySelector('.i-qty').value,
                         price: row.querySelector('.i-price').value,
                         warr: warrString, 
@@ -259,6 +272,7 @@
                 grandTotal: document.getElementById('displayTotal').textContent,
                 amountWords: document.getElementById('displayWords').textContent,
                 gstAdded: document.getElementById('gstCheck').checked,
+                roundAdded: document.getElementById('roundCheck').checked, // Saved state
                 items: items
             };
 
