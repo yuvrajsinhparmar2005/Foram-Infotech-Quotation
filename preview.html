@@ -49,20 +49,9 @@
             font-size: 0.9rem;
         }
 
-        .btn-edit {
-            background: #f1f5f9;
-            border: 1px solid #ccc;
-        }
-
-        .btn-download {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-back {
-            background: #0062ff;
-            color: white;
-        }
+        .btn-edit { background: #f1f5f9; border: 1px solid #ccc; }
+        .btn-download { background: #10b981; color: white; }
+        .btn-back { background: #0062ff; color: white; }
 
         /* A4 CONTAINER */
         #invoice {
@@ -70,8 +59,7 @@
             min-height: 1122px;
             background: white;
             padding: 40px;
-            padding-bottom: 120px;
-            /* Space for absolute footer */
+            padding-bottom: 140px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             box-sizing: border-box;
             position: relative;
@@ -102,27 +90,11 @@
             table-layout: fixed;
         }
 
-        .tbl th {
-            background: #eef2ff;
-            border: 1px solid #000;
-            padding: 8px;
-        }
+        .tbl th { background: #eef2ff; border: 1px solid #000; padding: 8px; }
+        .tbl td { border: 1px solid #000; padding: 8px; word-break: break-word; vertical-align: top; }
 
-        .tbl td {
-            border: 1px solid #000;
-            padding: 8px;
-            word-break: break-word;
-            white-space: normal;
-            vertical-align: top;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .text-center {
-            text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
 
         .gst-label {
             font-size: 10px;
@@ -146,22 +118,22 @@
         }
 
         .sign {
-            width: 40%;
+            width: 35%;
             text-align: right;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
         }
 
         .sign-line {
             border-top: 1px solid #000;
             width: 100%;
-            margin-top: 50px;
-            display: inline-block;
+            margin-top: 60px;
             padding-top: 5px;
+            display: block;
+            text-align: center;
         }
 
-        /* Fixed Bottom Positioning */
         .bottom {
             position: absolute;
             bottom: 30px;
@@ -203,7 +175,6 @@
                 <span id="p_addr1"></span><br>
                 <span id="p_addr2"></span>
             </div>
-
             <div style="text-align:right;">
                 <div><strong>No:</strong> <span id="p_no"></span></div>
                 <div><strong>Date:</strong> <span id="p_issue"></span></div>
@@ -221,17 +192,19 @@
                     <th style="width:15%">Total</th>
                 </tr>
             </thead>
-
             <tbody id="p_table_body"></tbody>
-
             <tfoot>
-                <tr>
+                <tr id="row_subtotal">
                     <td colspan="5" class="text-right">Sub Total</td>
                     <td class="text-right" id="p_subtotal"></td>
                 </tr>
-                <tr>
+                <tr id="row_gst">
                     <td colspan="5" class="text-right">GST (18%)</td>
                     <td class="text-right" id="p_gst_val"></td>
+                </tr>
+                <tr id="row_round" style="display: none;">
+                    <td colspan="5" class="text-right">Round Off</td>
+                    <td class="text-right" id="p_round_val"></td>
                 </tr>
                 <tr>
                     <td colspan="5" class="text-right"><b>Grand Total</b></td>
@@ -254,8 +227,7 @@
                 <strong>IFSC Code:</strong> HDFC0009655<br>
                 <strong>Branch:</strong> VADAJ, AHMEDABAD
                 <div style="margin-top:10px; font-size:10px;">
-                    <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods
-                    described.<br>
+                    <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described.<br>
                     1. Goods once sold will not be accepted back.<br>
                     2. Payment by cheque/draft in favour of "Foram Infotech".<br>
                     3. Subject to Ahmedabad jurisdiction only.
@@ -270,19 +242,17 @@
 
         <div class="bottom">
             New Laptop, Desktop Sales & Service, Software Install, Data Recovery & AMC<br>
-            Ahmedabad
-            <br><br>Contact.No: +91 8866623434 & +91 7043620212
+            Ahmedabad<br><br>
+            Contact.No: +91 8866623434 & +91 7043620212
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const id = new URLSearchParams(window.location.search).get('id');
-            if (!id) { alert("Invalid ID"); return; }
-
             const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
             const q = allQuotes.find(x => x.id == id);
-            if (!q) { alert("Quotation not found"); return; }
+            if (!q) return;
 
             document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
             document.getElementById('p_client').textContent = q.client;
@@ -299,11 +269,10 @@
                 const price = parseFloat(item.price) || 0;
                 const t = qty * price;
                 subtotal += t;
-
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="white-space:pre-line;">${item.desc}</td>
-                    <td style="white-space:pre-line;">${item.remarks || '-'}</td>
+                    <td>${item.remarks || '-'}</td>
                     <td class="text-center">${qty}</td>
                     <td class="text-right">${price.toFixed(2)}</td>
                     <td class="text-center">${item.warr || '-'}</td>
@@ -312,62 +281,49 @@
                 tbody.appendChild(tr);
             });
 
-            // Logic for GST Rows
-            const isGstEnabled = (q.gstAdded === true || q.gstAdded === "true" || q.isGst === true);
+            const isGstEnabled = q.gstAdded === true;
+            const isRoundEnabled = q.roundAdded === true;
+            let currentTotal = subtotal;
             let gstAmount = 0;
-            let finalAmount = subtotal;
 
             if (isGstEnabled) {
                 gstAmount = subtotal * 0.18;
-                finalAmount = subtotal + gstAmount;
+                currentTotal = subtotal + gstAmount;
                 document.getElementById('p_gst_note').textContent = "(Incl. 18% GST)";
             } else {
-                document.getElementById('p_gst_note').textContent = "";
+                document.getElementById('row_subtotal').style.display = 'none';
+                document.getElementById('row_gst').style.display = 'none';
             }
 
-            const formatCurrency = (num) => "₹ " + num.toLocaleString('en-IN', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            if (isRoundEnabled) {
+                const roundedTotal = Math.ceil(currentTotal);
+                const roundDiff = roundedTotal - currentTotal;
+                if(roundDiff !== 0) {
+                    document.getElementById('row_round').style.display = 'table-row';
+                    document.getElementById('p_round_val').textContent = "₹ " + roundDiff.toFixed(2);
+                }
+                currentTotal = roundedTotal;
+            }
 
+            const formatCurrency = (num) => "₹ " + num.toLocaleString('en-IN', { minimumFractionDigits: 2 });
             document.getElementById('p_subtotal').textContent = formatCurrency(subtotal);
             document.getElementById('p_gst_val').textContent = formatCurrency(gstAmount);
-            document.getElementById('p_grand').textContent = formatCurrency(finalAmount);
+            document.getElementById('p_grand').textContent = formatCurrency(currentTotal);
             document.getElementById('p_words').textContent = q.amountWords;
         });
 
         function downloadPDF() {
             const element = document.getElementById('invoice');
-
-            // 1. Temporarily remove shadow and margin to fix the alignment bug
             element.style.boxShadow = 'none';
-            element.style.marginLeft = '350px';
-
-            // 2. Scroll to the very top-left to prevent any vertical/horizontal cutoff
-            window.scrollTo(0, 0);
-
-            // 3. Setup precise rendering options
-            const opt = {
+            html2pdf().set({
                 margin: 0,
-                filename: 'Foram_Infotech_Quotation.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    windowWidth: 800,
-                    scrollX: 0,
-                    scrollY: 0
-                },
+                filename: 'Quotation.pdf',
+                html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // 4. Generate PDF, then restore the web preview styling
-            html2pdf().set(opt).from(element).save().then(() => {
+            }).from(element).save().then(() => {
                 element.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-                element.style.margin = '0 auto';
             });
         }
     </script>
 </body>
-
 </html>
