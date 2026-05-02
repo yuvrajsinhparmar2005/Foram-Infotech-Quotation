@@ -1,121 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview Quotation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        body { background: #525659; font-family: 'Noto Sans', sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .controls { position: sticky; top: 20px; background: white; padding: 10px 20px; border-radius: 50px; display: flex; gap: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn { padding: 8px 20px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none; font-size: 0.9rem; }
-        .btn-edit { background: #f1f5f9; color: #333; }
-        .btn-download { background: #10b981; color: white; }
-        #invoice { width: 800px; min-height: 1122px; background: white; padding: 40px; position: relative; box-sizing: border-box; }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-        .grid { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 12px; }
-        .tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .tbl th { background: #eef2ff; border: 1px solid #000; padding: 8px; }
-        .tbl td { border: 1px solid #000; padding: 8px; }
-        .text-right { text-align: right; }
-        .footer-content { display: flex; justify-content: space-between; margin-top: 20px; font-size: 11px; }
-        .bank { border: 1px solid #000; padding: 10px; width: 55%; }
-        .bottom { position: absolute; bottom: 30px; left: 40px; right: 40px; border-top: 2px solid #0062ff; text-align: center; font-size: 10px; padding-top: 10px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Quotation | Foram Infotech</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        :root { --primary: #0062ff; --bg: #f8fafc; --border: #e2e8f0; --text: #334155; }
+        body { font-family: 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .app-container { max-width: 1050px; margin: 0 auto; }
+
+        .dashboard-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .form-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
+        .form-header h2 { margin: 0; color: var(--primary); }
+
+        .section-title { font-size: 0.9rem; text-transform: uppercase; font-weight: 700; color: #94a3b8; margin: 25px 0 15px 0; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,98,255,0.1); }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .items-table th { background: #f1f5f9; text-align: left; padding: 12px; font-size: 0.8rem; font-weight: 700; color: #475569; }
+        .items-table td { padding: 8px; border-top: 1px solid var(--border); vertical-align: top; }
+        
+        .items-table input { width: 100%; padding: 8px; border: 1px solid transparent; background: transparent; font-family: inherit; font-size: 0.95rem; }
+        .items-table input:hover, .items-table input:focus { background: white; border: 1px solid var(--primary); border-radius: 4px; outline: none; }
+
+        .warr-group { display: flex; gap: 5px; border: 1px solid transparent; border-radius: 4px; padding: 2px; }
+        .warr-group:hover { border-color: var(--primary); background: white; }
+        .warr-group input { border: 1px solid #e2e8f0; width: 45px; text-align: center; border-radius: 4px; padding: 4px; background: white; }
+        .warr-group select { border: none; background: transparent; font-size: 0.8rem; color: #334155; cursor: pointer; outline: none; flex: 1; }
+
+        .grand-total-box { background: #eff6ff; padding: 20px; border-radius: 8px; text-align: right; margin-top: 20px; border: 1px solid #bfdbfe; }
+        .grand-total-amount { font-size: 1.5rem; color: var(--primary); font-weight: 800; }
+        
+        .gst-wrapper { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 8px; font-weight: 600; color: #475569; cursor: pointer; }
+        .gst-wrapper input { width: 18px; height: 18px; cursor: pointer; }
+
+        .btn-group { display: flex; gap: 15px; margin-top: 30px; }
+        .btn { flex: 1; padding: 12px 20px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; justify-content: center; align-items: center; gap: 8px; font-size: 1rem; text-decoration: none; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(0, 98, 255, 0.3); }
+        .btn-primary:hover { background: #004ecb; }
+        .btn-secondary { background: white; border: 1px solid #ccc; color: #334155; }
+        .btn-secondary:hover { background: #f1f5f9; }
+    </style>
 </head>
 <body>
-    <div class="controls">
-        <a href="#" id="btn-edit" class="btn btn-edit"><span class="material-icons">edit</span> Edit</a>
-        <button class="btn btn-download" onclick="downloadPDF()"><span class="material-icons">download</span> Download PDF</button>
-        <a href="index.html" class="btn" style="background:#0062ff; color:white;">Back</a>
-    </div>
 
-    <div id="invoice">
-        <div class="header">
-            <div><img src="Foram-logo.jpg" style="width:100px;"></div>
-            <div><img src="Foram-infotech-Name.jpg" style="width:200px;"></div>
-        </div>
+    <div class="app-container">
+        <div class="dashboard-card">
+            <div class="form-header">
+                <h2>Quotation Details</h2>
+                <a href="index.html" class="btn btn-secondary" style="flex: 0 0 auto;">Close</a>
+            </div>
 
-        <div class="grid">
-            <div>
-                <strong>To,</strong><br>
-                <span id="p_client"></span><br>
-                <span id="p_addr1"></span><br>
-                <span id="p_addr2"></span>
-            </div>
-            <div style="text-align:right;">
-                <div><strong>Invoice No:</strong> <span id="p_no"></span></div>
-                <div><strong>Date:</strong> <span id="p_issue"></span></div>
-                <!-- ADDED THIS LINE -->
-                <div><strong>Valid Till:</strong> <span id="p_valid"></span></div>
-            </div>
-        </div>
+            <form onsubmit="event.preventDefault(); saveAndPreview();">
+                <input type="hidden" id="edit-id">
+                <input type="hidden" id="in_company" value="Foram Infotech">
+                
+                <div class="grid-2">
+                    <div>
+                        <div class="section-title">Client Details</div>
+                        <div class="form-group"><label>Client Name</label><input type="text" id="in_client" required></div>
+                        <div class="form-group"><label>Address Line 1</label><input type="text" id="in_addr1"></div>
+                        <div class="form-group"><label>Address Line 2</label><input type="text" id="in_addr2"></div>
+                    </div>
+                    <div>
+                        <div class="section-title">Info</div>
+                        <div class="form-group"><label>Quotation No</label><input type="text" id="in_no"></div>
+                        <div class="grid-2" style="gap:10px;">
+                            <div class="form-group"><label>Issue Date</label><input type="date" id="in_date_issue"></div>
+                            <div class="form-group"><label>Valid Until</label><input type="date" id="in_date_valid"></div>
+                        </div>
+                    </div>
+                </div>
 
-        <table class="tbl">
-            <thead>
-                <tr>
-                    <th>Description</th><th>Remarks</th><th>Qty</th><th>Price</th><th>Warranty</th><th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="p_table_body"></tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="5" class="text-right"><b>Grand Total</b></td>
-                    <td class="text-right"><b id="p_grand"></b></td>
-                </tr>
-                <tr><td colspan="6"><b>In Words:</b> <span id="p_words"></span></td></tr>
-            </tfoot>
-        </table>
+                <div class="section-title">Items</div>
+                <table class="items-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th width="22%">Description</th>
+                            <th width="15%">Remarks (Opt)</th>
+                            <th width="8%">Qty</th>
+                            <th width="15%">Unit Price</th>
+                            <th width="30%">Warranty / Guarantee</th>
+                            <th width="10%">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
 
-        <div class="footer-content">
-            <div class="bank">
-                <strong>Bank Details:</strong> HDFC Bank | A/c: 50200113927631 | IFSC: HDFC0009655
-            </div>
-            <div style="text-align:right;">for, <strong>FORAM INFOTECH</strong><br><br><br>Authorised Signatory</div>
-        </div>
+                <div class="grand-total-box">
+                    <label class="gst-wrapper">
+                        <input type="checkbox" id="gstCheck" onchange="calculateTotals()">
+                        Add 18% GST?
+                    </label>
 
-        <div class="bottom">Contact: +91 8866623434 | Ahmedabad</div>
-    </div>
+                    <label class="gst-wrapper">
+                        <input type="checkbox" id="roundCheck" onchange="calculateTotals()">
+                        Round Figure?
+                    </label>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const id = new URLSearchParams(window.location.search).get('id');
-            const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
-            const q = allQuotes.find(x => x.id == id);
-            if (!q) return;
+                    <div style="font-size: 0.9rem; color: #64748b; margin-bottom: 5px;" id="subtotalRow" hidden>
+                        Subtotal: ₹ <span id="displaySubtotal">0.00</span>
+                    </div>
 
-            document.getElementById('btn-edit').href = `quotation.html?id=${id}`;
-            document.getElementById('p_client').textContent = q.client;
-            document.getElementById('p_addr1').textContent = q.addr1;
-            document.getElementById('p_addr2').textContent = q.addr2;
-            document.getElementById('p_no').textContent = q.quoteNo;
-            document.getElementById('p_issue').textContent = q.issueDate;
-            
-            // MAP DATA TO PREVIEW
-            document.getElementById('p_valid').textContent = q.validDate || 'N/A';
+                    <span style="font-size:0.9rem; font-weight:600; color:#64748b;">Grand Total:</span>
+                    <span class="grand-total-amount">₹ <span id="displayTotal">0.00</span></span>
+                    <span id="displayWords" style="display:block; font-size:0.8rem; color:#64748b; font-style:italic;">Zero Only</span>
+                </div>
 
-            const tbody = document.getElementById('p_table_body');
-            q.items.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.desc}</td><td>${item.remarks}</td>
-                    <td style="text-align:center">${item.qty}</td>
-                    <td class="text-right">${item.price}</td>
-                    <td>${item.warr}</td>
-                    <td class="text-right">${(item.qty * item.price).toFixed(2)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-            document.getElementById('p_grand').textContent = "₹ " + q.grandTotal;
-            document.getElementById('p_words').textContent = q.amountWords;
-        });
+                <div class="btn-group">
+                    <a href="index.html" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save & Preview >></button>
+                </div>
 
-        function downloadPDF() {
-            const element = document.getElementById('invoice');
-            html2pdf().from(element).save('Quotation.pdf');
-        }
-    </script>
-</body>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('id');
+        const tableBody = document.querySelector('#itemsTable tbody');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('in_date_issue').valueAsDate = new Date();
+            
+            if(editId) {
+                const q = allQuotes.find(item => item.id == editId);
+                if(q) {
+                    document.getElementById('edit-id').value = q.id;
+                    document.getElementById('in_company').value = q.company || "Foram Infotech";
+                    document.getElementById('in_client').value = q.client;
+                    document.getElementById('in_addr1').value = q.addr1;
+                    document.getElementById('in_addr2').value = q.addr2;
+                    document.getElementById('in_no').value = q.quoteNo;
+                    document.getElementById('in_date_issue').value = q.issueDate;
+                    document.getElementById('in_date_valid').value = q.validDate;
+                    document.getElementById('gstCheck').checked = q.gstAdded || false;
+                    document.getElementById('roundCheck').checked = q.roundAdded || false;
+                    
+                    if(q.items && q.items.length > 0) {
+                        q.items.forEach(item => createRow(item));
+                    }
+                }
+            } else {
+                document.getElementById('in_no').value = '2526/' + (Math.floor(Math.random() * 1000) + 100);
+            }
+            
+            if (tableBody.children.length === 0) createRow();
+            calculateTotals();
+        });
+
+        function createRow(data = {}) {
+            let duration = "";
+            let unit = "Year";
+            let type = "Warranty";
+
+            if (data.warr) {
+                const parts = data.warr.split(' ');
+                duration = parts[0] || "";
+                unit = parts[1] || "Year";
+                type = parts[2] || "Warranty";
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="i-desc" placeholder="Item Name" value="${data.desc || ''}"></td>
+                <td><input type="text" class="i-remarks" placeholder="Remarks" value="${data.remarks || ''}"></td>
+                <td><input type="number" class="i-qty" value="${data.qty || 1}" style="text-align:center;"></td>
+                <td><input type="number" class="i-price" placeholder="0.00" value="${data.price || ''}" style="text-align:right;"></td>
+                <td>
+                    <div class="warr-group">
+                        <input type="text" class="i-warr-duration" placeholder="1" value="${duration}">
+                        <select class="i-warr-unit">
+                            <option value="Year" ${unit === 'Year' ? 'selected' : ''}>Year(s)</option>
+                            <option value="Month" ${unit === 'Month' ? 'selected' : ''}>Month(s)</option>
+                        </select>
+                        <select class="i-warr-type">
+                            <option value="Warranty" ${type === 'Warranty' ? 'selected' : ''}>Warranty</option>
+                            <option value="Guarantee" ${type === 'Guarantee' ? 'selected' : ''}>Guarantee</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="text-align:right; padding-right:12px; font-weight:bold; padding-top: 12px;" class="i-total">0.00</td>
+            `;
+            tableBody.appendChild(tr);
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let subtotal = 0;
+            document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
+                const q = parseFloat(row.querySelector('.i-qty').value) || 0;
+                const p = parseFloat(row.querySelector('.i-price').value) || 0;
+                const t = q * p;
+                row.querySelector('.i-total').textContent = t.toFixed(2);
+                subtotal += t;
+            });
+
+            const isGst = document.getElementById('gstCheck').checked;
+            const isRound = document.getElementById('roundCheck').checked;
+            let grandTotal = subtotal;
+
+            if (isGst) {
+                const gstAmount = subtotal * 0.18;
+                grandTotal = subtotal + gstAmount;
+                document.getElementById('subtotalRow').hidden = false;
+                document.getElementById('displaySubtotal').textContent = subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            } else {
+                document.getElementById('subtotalRow').hidden = true;
+            }
+
+            // Apply Rounding if checked (Math.ceil turns 500.25 into 501)
+            if (isRound) {
+                grandTotal = Math.ceil(grandTotal);
+            }
+
+            document.getElementById('displayTotal').textContent = grandTotal.toLocaleString('en-IN', {
+                minimumFractionDigits: isRound ? 0 : 2,
+                maximumFractionDigits: 2
+            });
+            document.getElementById('displayWords').textContent = numberToWords(Math.round(grandTotal));
+        }
+
+        tableBody.addEventListener('input', (e) => {
+            if(e.target.classList.contains('i-desc')) {
+                const row = e.target.closest('tr');
+                if(row === tableBody.lastElementChild && e.target.value.trim() !== '') createRow();
+            }
+            if(e.target.classList.contains('i-qty') || e.target.classList.contains('i-price')) calculateTotals();
+        });
+
+        function saveAndPreview() {
+            const items = [];
+            document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
+                const desc = row.querySelector('.i-desc').value;
+                if(desc.trim()) {
+                    const dur = row.querySelector('.i-warr-duration').value.trim();
+                    const unit = row.querySelector('.i-warr-unit').value;
+                    const type = row.querySelector('.i-warr-type').value;
+                    const warrString = dur ? `${dur} ${unit} ${type}` : '';
+
+                    items.push({
+                        desc: desc,
+                        remarks: row.querySelector('.i-remarks').value,
+                        qty: row.querySelector('.i-qty').value,
+                        price: row.querySelector('.i-price').value,
+                        warr: warrString, 
+                        total: row.querySelector('.i-total').textContent
+                    });
+                }
+            });
+
+            const formData = {
+                id: editId ? parseInt(editId) : Date.now(),
+                company: document.getElementById('in_company').value,
+                client: document.getElementById('in_client').value,
+                addr1: document.getElementById('in_addr1').value,
+                addr2: document.getElementById('in_addr2').value,
+                quoteNo: document.getElementById('in_no').value,
+                issueDate: document.getElementById('in_date_issue').value,
+                validDate: document.getElementById('in_date_valid').value,
+                grandTotal: document.getElementById('displayTotal').textContent,
+                amountWords: document.getElementById('displayWords').textContent,
+                gstAdded: document.getElementById('gstCheck').checked,
+                roundAdded: document.getElementById('roundCheck').checked, // Saved state
+                items: items
+            };
+
+            if(editId) {
+                const index = allQuotes.findIndex(q => q.id == editId);
+                allQuotes[index] = formData;
+            } else {
+                allQuotes.push(formData);
+            }
+            
+            localStorage.setItem('myQuotations', JSON.stringify(allQuotes));
+            window.location.href = `preview.html?id=${formData.id}`;
+        }
+
+        function numberToWords(num) {
+            if (num === 0) return "Zero Only";
+            const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+            const b = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+            const n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return; 
+            let str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+            return str + 'Only';
+        }
+    </script>
+</body> 
 </html>
+
+i need till date from this page to my perview page
