@@ -1,171 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview Quotation</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <style>
-        body {
-            background: #525659;
-            font-family: 'Noto Sans', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* CONTROLS */
-        .controls {
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            text-decoration: none;
-            color: #333;
-            font-size: 0.9rem;
-        }
-
-        .btn-edit { background: #f1f5f9; border: 1px solid #ccc; }
+        body { background: #525659; font-family: 'Noto Sans', sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .controls { position: sticky; top: 20px; background: white; padding: 10px 20px; border-radius: 50px; display: flex; gap: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn { padding: 8px 20px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none; font-size: 0.9rem; }
+        .btn-edit { background: #f1f5f9; color: #333; }
         .btn-download { background: #10b981; color: white; }
-        .btn-back { background: #0062ff; color: white; }
-
-        /* A4 CONTAINER */
-        #invoice {
-            width: 800px;
-            min-height: 1122px;
-            background: white;
-            padding: 40px;
-            padding-bottom: 140px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            box-sizing: border-box;
-            position: relative;
-            color: #000;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .grid {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            font-size: 12px;
-        }
-
-        .tbl {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            margin-bottom: 20px;
-            table-layout: fixed;
-        }
-
+        #invoice { width: 800px; min-height: 1122px; background: white; padding: 40px; position: relative; box-sizing: border-box; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .grid { display: flex; justify-content: space-between; margin-bottom: 30px; font-size: 12px; }
+        .tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
         .tbl th { background: #eef2ff; border: 1px solid #000; padding: 8px; }
-        .tbl td { border: 1px solid #000; padding: 8px; word-break: break-word; vertical-align: top; }
-
+        .tbl td { border: 1px solid #000; padding: 8px; }
         .text-right { text-align: right; }
-        .text-center { text-align: center; }
-
-        .gst-label {
-            font-size: 10px;
-            color: #d32f2f;
-            display: block;
-            font-weight: 600;
-            margin-top: 2px;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            font-size: 11px;
-        }
-
-        .bank {
-            border: 1px solid #000;
-            padding: 10px;
-            width: 55%;
-        }
-
-        .sign {
-            width: 35%;
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
-        .sign-line {
-            border-top: 1px solid #000;
-            width: 100%;
-            margin-top: 60px;
-            padding-top: 5px;
-            display: block;
-            text-align: center;
-        }
-
-        .bottom {
-            position: absolute;
-            bottom: 30px;
-            left: 40px;
-            right: 40px;
-            border-top: 2px solid #0062ff;
-            padding-top: 10px;
-            text-align: center;
-            font-size: 10px;
-            color: #444;
-        }
+        .footer-content { display: flex; justify-content: space-between; margin-top: 20px; font-size: 11px; }
+        .bank { border: 1px solid #000; padding: 10px; width: 55%; }
+        .bottom { position: absolute; bottom: 30px; left: 40px; right: 40px; border-top: 2px solid #0062ff; text-align: center; font-size: 10px; padding-top: 10px; }
     </style>
 </head>
-
 <body>
-
     <div class="controls">
-        <a href="#" id="btn-edit" class="btn btn-edit">
-            <span class="material-icons">edit</span> Edit
-        </a>
-        <button class="btn btn-download" onclick="downloadPDF()">
-            <span class="material-icons">download</span> Download PDF
-        </button>
-        <a href="index.html" class="btn btn-back">
-            <span class="material-icons">arrow_back</span> Back
-        </a>
+        <a href="#" id="btn-edit" class="btn btn-edit"><span class="material-icons">edit</span> Edit</a>
+        <button class="btn btn-download" onclick="downloadPDF()"><span class="material-icons">download</span> Download PDF</button>
+        <a href="index.html" class="btn" style="background:#0062ff; color:white;">Back</a>
     </div>
 
     <div id="invoice">
         <div class="header">
-            <div><img src="Foram-logo.jpg" style="width:100px;" alt="Logo"></div>
-            <div><img src="Foram-infotech-Name.jpg" style="width:200px;" alt="Company Name"></div>
+            <div><img src="Foram-logo.jpg" style="width:100px;"></div>
+            <div><img src="Foram-infotech-Name.jpg" style="width:200px;"></div>
         </div>
 
         <div class="grid">
@@ -176,75 +46,37 @@
                 <span id="p_addr2"></span>
             </div>
             <div style="text-align:right;">
-                <div><strong>No:</strong> <span id="p_no"></span></div>
+                <div><strong>Invoice No:</strong> <span id="p_no"></span></div>
                 <div><strong>Date:</strong> <span id="p_issue"></span></div>
+                <!-- ADDED THIS LINE -->
+                <div><strong>Valid Till:</strong> <span id="p_valid"></span></div>
             </div>
         </div>
 
         <table class="tbl">
             <thead>
                 <tr>
-                    <th style="width:30%">Description</th>
-                    <th style="width:18%">Remarks</th>
-                    <th style="width:7%">Qty</th>
-                    <th style="width:15%">Price</th>
-                    <th style="width:15%">Warranty</th>
-                    <th style="width:15%">Total</th>
+                    <th>Description</th><th>Remarks</th><th>Qty</th><th>Price</th><th>Warranty</th><th>Total</th>
                 </tr>
             </thead>
             <tbody id="p_table_body"></tbody>
             <tfoot>
-                <tr id="row_subtotal">
-                    <td colspan="5" class="text-right">Sub Total</td>
-                    <td class="text-right" id="p_subtotal"></td>
-                </tr>
-                <tr id="row_gst">
-                    <td colspan="5" class="text-right">GST (18%)</td>
-                    <td class="text-right" id="p_gst_val"></td>
-                </tr>
-                <tr id="row_round" style="display: none;">
-                    <td colspan="5" class="text-right">Round Off</td>
-                    <td class="text-right" id="p_round_val"></td>
-                </tr>
                 <tr>
                     <td colspan="5" class="text-right"><b>Grand Total</b></td>
-                    <td class="text-right">
-                        <b id="p_grand"></b>
-                        <span id="p_gst_note" class="gst-label"></span>
-                    </td>
+                    <td class="text-right"><b id="p_grand"></b></td>
                 </tr>
-                <tr>
-                    <td colspan="6"><b>In Words:</b> <span id="p_words"></span></td>
-                </tr>
+                <tr><td colspan="6"><b>In Words:</b> <span id="p_words"></span></td></tr>
             </tfoot>
         </table>
 
         <div class="footer-content">
             <div class="bank">
-                <strong style="text-decoration:underline;">Bank Details</strong><br>
-                <strong>Bank Name:</strong> HDFC Bank<br>
-                <strong>Account No:</strong> 50200113927631<br>
-                <strong>IFSC Code:</strong> HDFC0009655<br>
-                <strong>Branch:</strong> VADAJ, AHMEDABAD
-                <div style="margin-top:10px; font-size:10px;">
-                    <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods described.<br>
-                    1. Goods once sold will not be accepted back.<br>
-                    2. Payment by cheque/draft in favour of "Foram Infotech".<br>
-                    3. Subject to Ahmedabad jurisdiction only.
-                </div>
+                <strong>Bank Details:</strong> HDFC Bank | A/c: 50200113927631 | IFSC: HDFC0009655
             </div>
-
-            <div class="sign">
-                <div>for, <strong>FORAM INFOTECH</strong></div>
-                <div class="sign-line">Authorised Signatory</div>
-            </div>
+            <div style="text-align:right;">for, <strong>FORAM INFOTECH</strong><br><br><br>Authorised Signatory</div>
         </div>
 
-        <div class="bottom">
-            New Laptop, Desktop Sales & Service, Software Install, Data Recovery & AMC<br>
-            Ahmedabad<br><br>
-            Contact.No: +91 8866623434 & +91 7043620212
-        </div>
+        <div class="bottom">Contact: +91 8866623434 | Ahmedabad</div>
     </div>
 
     <script>
@@ -259,70 +91,30 @@
             document.getElementById('p_addr1').textContent = q.addr1;
             document.getElementById('p_addr2').textContent = q.addr2;
             document.getElementById('p_no').textContent = q.quoteNo;
-            document.getElementById('p_issue').textContent = q.issueDate || '';
+            document.getElementById('p_issue').textContent = q.issueDate;
+            
+            // MAP DATA TO PREVIEW
+            document.getElementById('p_valid').textContent = q.validDate || 'N/A';
 
             const tbody = document.getElementById('p_table_body');
-            let subtotal = 0;
-
             q.items.forEach(item => {
-                const qty = parseFloat(item.qty) || 0;
-                const price = parseFloat(item.price) || 0;
-                const t = qty * price;
-                subtotal += t;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="white-space:pre-line;">${item.desc}</td>
-                    <td>${item.remarks || '-'}</td>
-                    <td class="text-center">${qty}</td>
-                    <td class="text-right">${price.toFixed(2)}</td>
-                    <td class="text-center">${item.warr || '-'}</td>
-                    <td class="text-right">${t.toFixed(2)}</td>
+                    <td>${item.desc}</td><td>${item.remarks}</td>
+                    <td style="text-align:center">${item.qty}</td>
+                    <td class="text-right">${item.price}</td>
+                    <td>${item.warr}</td>
+                    <td class="text-right">${(item.qty * item.price).toFixed(2)}</td>
                 `;
                 tbody.appendChild(tr);
             });
-
-            const isGstEnabled = q.gstAdded === true;
-            const isRoundEnabled = q.roundAdded === true;
-            let currentTotal = subtotal;
-            let gstAmount = 0;
-
-            if (isGstEnabled) {
-                gstAmount = subtotal * 0.18;
-                currentTotal = subtotal + gstAmount;
-                document.getElementById('p_gst_note').textContent = "(Incl. 18% GST)";
-            } else {
-                document.getElementById('row_subtotal').style.display = 'none';
-                document.getElementById('row_gst').style.display = 'none';
-            }
-
-            if (isRoundEnabled) {
-                const roundedTotal = Math.ceil(currentTotal);
-                const roundDiff = roundedTotal - currentTotal;
-                if(roundDiff !== 0) {
-                    document.getElementById('row_round').style.display = 'table-row';
-                    document.getElementById('p_round_val').textContent = "₹ " + roundDiff.toFixed(2);
-                }
-                currentTotal = roundedTotal;
-            }
-
-            const formatCurrency = (num) => "₹ " + num.toLocaleString('en-IN', { minimumFractionDigits: 2 });
-            document.getElementById('p_subtotal').textContent = formatCurrency(subtotal);
-            document.getElementById('p_gst_val').textContent = formatCurrency(gstAmount);
-            document.getElementById('p_grand').textContent = formatCurrency(currentTotal);
+            document.getElementById('p_grand').textContent = "₹ " + q.grandTotal;
             document.getElementById('p_words').textContent = q.amountWords;
         });
 
         function downloadPDF() {
             const element = document.getElementById('invoice');
-            element.style.boxShadow = 'none';
-            html2pdf().set({
-                margin: 0,
-                filename: 'Quotation.pdf',
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }).from(element).save().then(() => {
-                element.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-            });
+            html2pdf().from(element).save('Quotation.pdf');
         }
     </script>
 </body>
