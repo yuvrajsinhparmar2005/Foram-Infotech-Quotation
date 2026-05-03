@@ -9,7 +9,7 @@
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <!-- PDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -58,23 +58,50 @@
             transition: transform 0.2s;
         }
 
-        .btn:hover { transform: translateY(-2px); }
-        .btn-edit { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
-        .btn-download { background: #10b981; color: white; }
-        .btn-back { background: var(--primary-color); color: white; }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
 
-        /* --- A4 DOCUMENT PAGE --- */
+        .btn-edit {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-download {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-back {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* This ensures the PDF generator sees a clean start point */
+        @media print {
+
+            body,
+            html {
+                margin: 0 !important;
+                padding: 0 !important;
+                height: 1123px;
+                /* Exact A4 Height */
+            }
+        }
+
         #invoice {
-            width: 794px; /* Exact A4 width in pixels at 96dpi */
-            min-height: 1123px;
+            width: 794px;
+            height: 1120px;
+            /* Fixed height, slightly less than 1123px to avoid overflow */
             background: white;
-            padding: 50px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            padding: 40px;
             box-sizing: border-box;
-            position: relative;
-            color: #1a1a1a;
             display: flex;
             flex-direction: column;
+            margin: 0 auto;
+            overflow: hidden;
+            /* Hide anything that might stick out */
         }
 
         /* Header Section */
@@ -96,7 +123,12 @@
             line-height: 1.6;
         }
 
-        .info-label { color: #64748b; font-weight: 600; width: 80px; display: inline-block; }
+        .info-label {
+            color: #64748b;
+            font-weight: 600;
+            width: 80px;
+            display: inline-block;
+        }
 
         /* Table Styling */
         .tbl {
@@ -122,10 +154,19 @@
         }
 
         /* Totals Styling */
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        .grand-total-row { background: #f0f7ff; font-size: 14px; }
-        
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .grand-total-row {
+            background: #f0f7ff;
+            font-size: 14px;
+        }
+
         .gst-label {
             font-size: 10px;
             color: #d32f2f;
@@ -138,7 +179,8 @@
         .footer-content {
             display: flex;
             justify-content: space-between;
-            margin-top: auto; /* Pushes to bottom of A4 */
+            margin-top: auto;
+            /* Pushes to bottom of A4 */
             padding-top: 20px;
         }
 
@@ -176,16 +218,26 @@
 
         /* PDF specific tweaks */
         @media print {
-            body { background: white; padding: 0; }
-            .controls { display: none; }
-            #invoice { box-shadow: none; margin: 0; }
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .controls {
+                display: none;
+            }
+
+            #invoice {
+                box-shadow: none;
+                margin: 0;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="controls">
+    <div class="controls" id="controls-bar">
         <a href="#" id="btn-edit" class="btn btn-edit">
             <span class="material-icons">edit</span> Edit
         </a>
@@ -213,7 +265,7 @@
                 <span id="p_addr2"></span>
             </div>
             <div style="text-align:right;">
-                <div><span class="info-label">QUOTATION No:</span> <span id="p_no" style="font-weight: 700;"></span></div>
+                <div><span class="info-label">No:</span> <span id="p_no" style="font-weight: 700;"></span></div>
                 <div><span class="info-label">Date:</span> <span id="p_issue"></span></div>
                 <div><span class="info-label">Valid Till:</span> <span id="p_valid"></span></div>
             </div>
@@ -268,7 +320,8 @@
         <!-- Footer Section -->
         <div class="footer-content">
             <div class="bank">
-                <strong style="text-decoration:underline; font-size: 12px; color: var(--primary-color);">BANK DETAILS</strong><br>
+                <strong style="text-decoration:underline; font-size: 12px; color: var(--primary-color);">BANK
+                    DETAILS</strong><br>
                 <div style="margin-top: 5px;">
                     <strong>Bank Name:</strong> HDFC Bank<br>
                     <strong>Account No:</strong> 50200113927631<br>
@@ -302,7 +355,7 @@
             const id = new URLSearchParams(window.location.search).get('id');
             const allQuotes = JSON.parse(localStorage.getItem('myQuotations')) || [];
             const q = allQuotes.find(x => x.id == id);
-            
+
             if (!q) {
                 alert("Quotation not found!");
                 return;
@@ -326,7 +379,7 @@
                 const price = parseFloat(item.price) || 0;
                 const t = qty * price;
                 subtotal += t;
-                
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="white-space:pre-line; font-weight: 600;">${item.desc}</td>
@@ -365,31 +418,46 @@
             }
 
             const formatCurrency = (num) => "₹ " + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            
+
             document.getElementById('p_subtotal').textContent = formatCurrency(subtotal);
             document.getElementById('p_gst_val').textContent = formatCurrency(gstAmount);
             document.getElementById('p_grand').textContent = formatCurrency(currentTotal);
             document.getElementById('p_words').textContent = q.amountWords;
         });
 
-        function downloadPDF() {
-            const element = document.getElementById('invoice');
-            // Temporarily remove shadow for clean PDF
-            const originalShadow = element.style.boxShadow;
-            element.style.boxShadow = 'none';
+       function downloadPDF() {
+    const element = document.getElementById('invoice');
+    const controls = document.getElementById('controls-bar');
 
-            const opt = {
-                margin: 0,
-                filename: `Quotation_${document.getElementById('p_no').innerText}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+    controls.style.display = 'none';
+    element.style.boxShadow = 'none';
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.boxShadow = originalShadow;
-            });
-        }
+    const opt = {
+        margin: 0,
+        filename: `Quotation_${document.getElementById('p_no').innerText}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            scrollY: 0,
+            y: 0,
+            windowHeight: 1120 // Match the CSS height
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true 
+        },
+        // ADD THIS PROPERTY TO PREVENT EXTRA PAGES
+        pagebreak: { mode: 'avoid-all' } 
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        element.style.boxShadow = '0 0 30px rgba(0, 0, 0, 0.5)';
+        controls.style.display = 'flex';
+    });
+}
     </script>
 </body>
 
