@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Letter For You</title>
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Playfair+Display:ital,wght@0,400;1,600&family=Great+Vibes&family=Montserrat:wght@300&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fdf6f0;
+            overflow-x: hidden;
+        }
+
+        .bg-paper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fdf6f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .wax-seal {
+            width: 100px;
+            height: 100px;
+            background: #b33939;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 4px double #8e2e2e;
+            transition: 0.4s;
+        }
+
+        .wax-seal:hover {
+            transform: scale(1.1);
+        }
+
+        .letter-paper {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 60px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        .letter-paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50px;
+            width: 2px;
+            height: 100%;
+            background: rgba(214, 48, 49, 0.2);
+        }
+
+        .letter-content {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #2d3436;
+        }
+
+        .letter-header {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #b33939;
+            margin-bottom: 30px;
+        }
+
+        .signature {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3rem;
+            text-align: right;
+            margin-top: 40px;
+            color: #b33939;
+        }
+
+        #name-heading {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            color: #b33939;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        /* --- SCATTERED SCROLLER STYLES --- */
+        .memory-scroller {
+            display: flex;
+            overflow-x: auto;
+            padding: 40px 20px;
+            gap: 30px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .memory-scroller::-webkit-scrollbar {
+            display: none;
+        }
+
+        .memory-scroller {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .polaroid {
+            flex: 0 0 auto;
+            width: 280px;
+            background: white;
+            padding: 15px 15px 45px 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: 0.4s;
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .polaroid-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.3rem;
+            text-align: center;
+            margin-top: 15px;
+            color: #636e72;
+        }
+
+        .polaroid:nth-child(odd) {
+            transform: rotate(-3deg) translateY(10px);
+        }
+
+        .polaroid:nth-child(even) {
+            transform: rotate(2deg) translateY(-10px);
+        }
+
+        .polaroid:hover {
+            transform: rotate(0deg) scale(1.05);
+            z-index: 10;
+        }
+
+        .heart {
+            position: fixed;
+            color: rgba(179, 57, 57, 0.6);
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 1000;
+            animation: floatUp 5s linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* To hide the cursor after typing is finished */
+        .typed-cursor--blink {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-paper"></div>
+
+    <div class="loader-wrapper">
+        <p style="font-family: 'Playfair Display'; font-style: italic; color: #b33939;">You have a new letter...</p>
+        <div class="wax-seal" id="play">A</div>
+        <p style="margin-top: 20px; font-size: 0.8rem; letter-spacing: 2px; color: #636e72;">BREAK THE SEAL</p>
+    </div>
+
+    <audio id="birthdaySong" loop>
+        <source src="music.mp3" type="audio/mp3">
+    </audio>
+
+    <div class="main-content" style="display:none;">
+        <div class="container py-5">
+
+            <h1 id="name-heading">Happy Birthday, Amuu</h1>
+
+            <div class="letter-paper">
+                <div class="letter-header">My Lovely Wifey,</div>
+
+                <div class="letter-content">
+                    <div id="typed-strings" style="display:none;">
+                        <p>As I sit here writing this, I am overwhelmed by the thought that soon, I get to call you my
+                            wife. Our journey—from the sunset views in Udaipur to our everyday life here in
+                            Ahmedabad—has been the most beautiful adventure of my life. You aren't just my partner; you
+                            are my home and my future.
+
+                            Your smile is the light I want to wake up to every morning for the rest of my life. Today, I
+                            celebrate the day you were born, but I also celebrate the life we are building together. I
+                            promise to spend every day making you feel as loved as you make me feel.
+
+                            Happy Birthday to my beautiful fiancée. I love you infinitely.</p>
+                    </div>
+                    <span id="typed"></span>
+                </div>
+
+                <div class="signature">Yours forever, Husband</div>
+            </div>
+
+            <!-- SCATTERED MEMORIES SCROLLER -->
+            <div class="row mt-5 pt-5">
+                <div class="col-12 text-center">
+                    <h2 style="font-family: 'Dancing Script'; font-size: 3rem; color: #b33939;">Scattered Memories</h2>
+                </div>
+
+                <div class="memory-scroller" id="scroller">
+                    <div class="polaroid"><img src="img/1.jpeg">
+                        <div class="polaroid-text">That beautiful day...</div>
+                    </div>
+                    <div class="polaroid"><img src="img/2.jpeg">
+                        <div class="polaroid-text">Forever grateful</div>
+                    </div>
+                    <div class="polaroid"><img src="img/3.jpeg">
+                        <div class="polaroid-text">My favorite smile</div>
+                    </div>
+                    <div class="polaroid"><img src="img/4.jpeg">
+                        <div class="polaroid-text">Special Moments</div>
+                    </div>
+                    <div class="polaroid"><img src="img/5.jpeg">
+                        <div class="polaroid-text">Always you.</div>
+                    </div>
+                    <div class="polaroid"><img src="img/6.jpeg">
+                        <div class="polaroid-text">Endless Love</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+
+    <script>
+        $(document).ready(function () {
+            const music = document.getElementById('birthdaySong');
+            const scroller = document.getElementById('scroller');
+            let isAutoScrolling = true;
+
+            $('#play').click(function () {
+                $('.loader-wrapper').fadeOut(1500);
+                $('.main-content').delay(800).fadeIn(2000);
+                music.play().catch(e => console.log(e));
+
+                setInterval(createHeart, 400);
+
+                // Start Typing - Loop is set to false and backSpeed is removed
+                new Typed('#typed', {
+                    stringsElement: '#typed-strings',
+                    typeSpeed: 50,
+                    backSpeed: 0,
+                    backDelay: 0,
+                    loop: false, // This ensures it doesn't repeat
+                    showCursor: true,
+                    cursorChar: '🖋️',
+                    onComplete: (self) => {
+                        // Optional: Hide cursor when finished writing
+                        setTimeout(() => {
+                            $('.typed-cursor').fadeOut();
+                        }, 1000);
+                    }
+                });
+
+                startAutoScroll();
+            });
+
+            function startAutoScroll() {
+                setInterval(() => {
+                    if (isAutoScrolling) {
+                        scroller.scrollLeft += 1;
+                        if (scroller.scrollLeft >= (scroller.scrollWidth - scroller.clientWidth)) {
+                            scroller.scrollLeft = 0;
+                        }
+                    }
+                }, 30);
+            }
+
+            $(scroller).on('mouseenter touchstart', () => isAutoScrolling = false);
+            $(scroller).on('mouseleave touchend', () => isAutoScrolling = true);
+
+            function createHeart() {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.bottom = '-5vh';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                heart.style.opacity = Math.random();
+                document.body.appendChild(heart);
+                setTimeout(() => { heart.remove(); }, 5000);
+            }
+        });
+    </script>
+</body>
+
+</html>
